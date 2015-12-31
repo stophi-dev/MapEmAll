@@ -1,0 +1,21 @@
+{
+  "name": "MapEmAll",
+  "version": "0.1.0",
+  "keywords": [
+    "library",
+    "map",
+    "geo",
+    "googlemaps",
+    "bingmaps",
+    "openstreetmaps"
+  ],
+  "author": "Philip Stöhrer",
+  "contributors": [],
+  "dependencies": {},
+  "devDependencies": {
+    "requirejs": "^2.1.22"
+  },
+  "scripts": {
+    "build": "r.js -o build/build.json optimize=none out=dist/MapEmAll.js && r.js -o  build/build.json out=dist/MapEmAll.min.js"
+  }
+}

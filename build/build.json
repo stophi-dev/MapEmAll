@@ -1,0 +1,18 @@
+{
+    "baseUrl": "../src",
+    "paths": {
+        "MapEmAll": "../src"
+    },
+    "include": [
+        "../build/almond",
+        "Main",
+        "JSLoader",
+        "provider/Bing",
+        "provider/Google",
+        "provider/OSM"
+    ],
+    "wrap": {
+        "startFile": "start.frag",
+        "endFile": "end.frag"
+    }
+}

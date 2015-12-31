@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>MapEmAll Examples - Hello OpenStreetMaps</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style type="text/css">
+            html, body { height: 100%; margin: 0; padding: 0; }
+            #map { height: 100%; }
+        </style>
+    </head>
+    <body>
+        <div id="map"></div>
+        <script src="MapEmAll.js"></script>
+        <script>
+            // Set the center of the map:
+            MapEmAll.center = {latitude: 48.163166, longitude: 11.58289};
+
+            // Set the ID of div where the map should be placed:
+            MapEmAll.htmlContainerId = 'map';
+
+            // Set your provider to 'osm':
+            MapEmAll.provider = 'osm';
+
+            // Define the callback, when map is loaded:
+            function onMapIsLoaded(map) {
+                // Place your custom code in here.
+                // Here we just a add a marker at the center of the map:
+                map.addMarker(MapEmAll.center, 'Hello World!');
+            }
+
+            MapEmAll.loadMap(onMapIsLoaded);
+        </script>
+    </body>
+</html>
