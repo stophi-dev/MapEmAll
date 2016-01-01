@@ -25,7 +25,9 @@ define([], function () {
     };
 
     result.loadMap = function (onMapReadyCallback) {
-
+        onMapReadyCallback = typeof onMapReadyCallback === 'function'
+                ? onMapReadyCallback
+                : function () {};
         var htmlContainer = document.getElementById(result.htmlContainerId);
         if (htmlContainer === null) {
             throw new Error('Did not find element with id "' + result.htmlContainerId + "'");
