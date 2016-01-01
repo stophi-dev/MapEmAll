@@ -10,9 +10,21 @@
 define(['JSLoader', 'provider/BingMap'], function (loader, BingMap) {
     'use strict';
 
+    function preventMapToBeGloballyAbsolute(htmlElement) {
+        var style = window.getComputedStyle(htmlElement, null);
+        if (style.position === 'static') {
+            htmlElement.style.position = 'relative';
+        }
+    }
+
     return {
         loadMap: function (options, callback) {
             var callbackName = 'initBingMap_' + loader.makeId(10);
+
+            // Bing maps positions the map absolute.
+            // To prevent overlaps and to get a similar behavior like
+            // other providers, we adjust the position of htmlContainer:
+            preventMapToBeGloballyAbsolute(options.htmlContainer);
 
             window[callbackName] = function () {
                 delete window[callbackName];
