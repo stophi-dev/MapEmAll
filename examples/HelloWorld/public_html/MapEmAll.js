@@ -465,11 +465,16 @@ define('Main',[], function () {
     var result = {
         center: {latitude: 48.163166, longitude: 11.58289},
         provider: 'osm',
-        htmlContainerId: 'MapEmAll'
+        htmlContainerId: 'MapEmAll',
+        getMapProviders: function () {
+            return Object.keys(providers);
+        }
     };
 
     result.loadMap = function (onMapReadyCallback) {
-
+        onMapReadyCallback = typeof onMapReadyCallback === 'function'
+                ? onMapReadyCallback
+                : function () {};
         var htmlContainer = document.getElementById(result.htmlContainerId);
         if (htmlContainer === null) {
             throw new Error('Did not find element with id "' + result.htmlContainerId + "'");
@@ -543,7 +548,7 @@ define('JSLoader',[], function () {
 
 /* global Microsoft */
 
-define('provider/BingMap',[],function () {
+define('provider/BingMap',['JSLoader'], function (loader) {
     'use strict';
 
     var BingMap = function BingMap(options) {
@@ -566,12 +571,24 @@ define('provider/BingMap',[],function () {
                 }
             };
         };
+
         this.addMarker = function (geoPosition, title) {
+            var pinId = 'bing_pushpin_' + loader.makeId(20);
 
             var location = new Microsoft.Maps.Location(geoPosition.latitude, geoPosition.longitude);
-            var pin = new Microsoft.Maps.Pushpin(location);
+            var pin = new Microsoft.Maps.Pushpin(location, {id: pinId});
             map.entities.push(pin);
+
+            addTooltipToPin(pinId, title);
         };
+
+        function addTooltipToPin(pinId, tooltipText) {
+            var pinElement = document.getElementById(pinId);
+            var children = Array.prototype.slice.call(pinElement.childNodes);
+            children.forEach(function(child) {
+                child.setAttribute('title', tooltipText);
+            });
+        }
 
         this.addListener = function (event, listener) {
             if (event === 'boundsChanged') {
@@ -602,9 +619,21 @@ define('provider/BingMap',[],function () {
 define('provider/Bing',['JSLoader', 'provider/BingMap'], function (loader, BingMap) {
     'use strict';
 
+    function preventMapToBeGloballyAbsolute(htmlElement) {
+        var style = window.getComputedStyle(htmlElement, null);
+        if (style.position === 'static') {
+            htmlElement.style.position = 'relative';
+        }
+    }
+
     return {
         loadMap: function (options, callback) {
             var callbackName = 'initBingMap_' + loader.makeId(10);
+
+            // Bing maps positions the map absolute.
+            // To prevent overlaps and to get a similar behavior like
+            // other providers, we adjust the position of htmlContainer:
+            preventMapToBeGloballyAbsolute(options.htmlContainer);
 
             window[callbackName] = function () {
                 delete window[callbackName];
