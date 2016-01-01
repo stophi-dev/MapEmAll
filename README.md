@@ -1,4 +1,6 @@
-# MapEmAll
+# MapEmAll 
+![Build Status](https://api.travis-ci.org/stophi-dev/MapEmAll.svg?branch=master)
+
 One API for multiple map providers. 
 Currently supported: 
 * Google Maps
