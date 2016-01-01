@@ -18,7 +18,10 @@ define([], function () {
     var result = {
         center: {latitude: 48.163166, longitude: 11.58289},
         provider: 'osm',
-        htmlContainerId: 'MapEmAll'
+        htmlContainerId: 'MapEmAll',
+        getMapProviders: function () {
+            return Object.keys(providers);
+        }
     };
 
     result.loadMap = function (onMapReadyCallback) {
