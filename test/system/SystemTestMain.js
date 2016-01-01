@@ -39,6 +39,8 @@ define(function () {
         function reloadMap(provider) {
             $('#map').remove();
             $('body').append('<div id="map"></div>');
+            $('#showArea').text('');
+
             MapEmAll.htmlContainerId = 'map';
             MapEmAll.provider = provider;
             MapEmAll.loadMap(function (loadedMap) {
