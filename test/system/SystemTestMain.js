@@ -24,14 +24,15 @@ define(function () {
             reloadMap(this.value);
         });
 
-        $('#addMarkerToCenter').on('click', function() {
-            var latitude = (map.getArea().northEast.latitude + map.getArea().southWest.latitude) / 2;
-            var longitude = (map.getArea().northEast.longitude + map.getArea().southWest.longitude) / 2;
+        $('#addMarkerToCenter').on('click', function () {
+            var area = map.getArea();
+            var latitude = (area.northEast.latitude + area.southWest.latitude) / 2;
+            var longitude = (area.northEast.longitude + area.southWest.longitude) / 2;
 
             map.addMarker({latitude: latitude, longitude: longitude}, 'Marker');
         });
 
-        $('#clearAllMarkers').on('click', function() {
+        $('#clearAllMarkers').on('click', function () {
             map.clearAllMarkers();
         });
 
@@ -40,9 +41,21 @@ define(function () {
             $('body').append('<div id="map"></div>');
             MapEmAll.htmlContainerId = 'map';
             MapEmAll.provider = provider;
-            MapEmAll.loadMap(function(loadedMap) {
+            MapEmAll.loadMap(function (loadedMap) {
                 map = loadedMap;
+                map.addListener('boundsChanged', function () {
+                    $('#showArea').text(areaToString(map.getArea()));
+                });
             });
+        }
+
+        function areaToString(area) {
+            return 'Northeast: ' + geoLocationToString(area.northEast) +
+                    ' Southwest: ' + geoLocationToString(area.southWest);
+        }
+
+        function geoLocationToString(geoLocation) {
+            return '(' + geoLocation.latitude + ', ' + geoLocation.longitude + ')';
         }
 
     });
