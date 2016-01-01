@@ -9,7 +9,7 @@
 
 /* global Microsoft */
 
-define(function () {
+define(['JSLoader'], function (loader) {
     'use strict';
 
     var BingMap = function BingMap(options) {
@@ -32,12 +32,24 @@ define(function () {
                 }
             };
         };
+
         this.addMarker = function (geoPosition, title) {
+            var pinId = 'bing_pushpin_' + loader.makeId(20);
 
             var location = new Microsoft.Maps.Location(geoPosition.latitude, geoPosition.longitude);
-            var pin = new Microsoft.Maps.Pushpin(location);
+            var pin = new Microsoft.Maps.Pushpin(location, {id: pinId});
             map.entities.push(pin);
+
+            addTooltipToPin(pinId, title);
         };
+
+        function addTooltipToPin(pinId, tooltipText) {
+            var pinElement = document.getElementById(pinId);
+            var children = Array.prototype.slice.call(pinElement.childNodes);
+            children.forEach(function(child) {
+                child.setAttribute('title', tooltipText);
+            });
+        }
 
         this.addListener = function (event, listener) {
             if (event === 'boundsChanged') {
