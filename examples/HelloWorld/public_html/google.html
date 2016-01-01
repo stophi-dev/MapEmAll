@@ -28,10 +28,11 @@
             // Define the callback, when map is loaded:
             function onMapIsLoaded(map) {
                 // Place your custom code in here.
-                // Here we just a add a marker at the center of the map:
+                // Here we just add a marker at the center of the map:
                 map.addMarker(MapEmAll.center, 'Hello World!');
             }
 
+            // Setup is finished, now load the map:
             MapEmAll.loadMap(onMapIsLoaded);
         </script>
     </body>
