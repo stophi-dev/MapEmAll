@@ -16,6 +16,7 @@
     "requirejs": "^2.1.22"
   },
   "scripts": {
-    "build": "r.js -o build/build.json optimize=none out=dist/MapEmAll.js && r.js -o  build/build.json out=dist/MapEmAll.min.js"
+    "build": "r.js -o build/build.json optimize=none out=dist/MapEmAll.js && r.js -o  build/build.json out=dist/MapEmAll.min.js",
+    "update-helloworld": "cp dist/MapEmAll.js examples/HelloWorld/public_html"
   }
 }
