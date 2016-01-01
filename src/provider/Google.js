@@ -24,84 +24,24 @@
 
 /* global google */
 
-define(['JSLoader'], function (loader) {
+define(['JSLoader', 'provider/GoogleMap'], function (loader, GoogleMap) {
     'use strict';
 
-    function loadGoogleMap(options, callback) {
-        var callbackName = 'initGoogleMap_' + loader.makeId(10);
-        window[callbackName] = function () {
-            delete window[callbackName];
-            var googleMap = new GoogleMap(options);
-
-            google.maps.event.addListenerOnce(googleMap.map, "bounds_changed", function () {
-                // for compatibility with other APIs: getArea() should be ready immediately:
-                callback(googleMap);
-            });
-        };
-        var keyStr = options.credentials ? 'key=' + options.credentials + '&' : '';
-        loader.loadjsfile('https://maps.googleapis.com/maps/api/js?' + keyStr + 'callback=' + callbackName);
-    }
-
-    var GoogleMap = function (options) {
-        var self = this;
-        var markers = [];
-
-        this.map = new google.maps.Map(options.htmlContainer, {
-            center: {lat: options.center.latitude, lng: options.center.longitude},
-            zoom: 16
-        });
-
-        this.getArea = function () {
-            var northEast = self.map.getBounds().getNorthEast();
-            var southWest = self.map.getBounds().getSouthWest();
-            return {
-                northEast: {
-                    latitude: northEast.lat(),
-                    longitude: northEast.lng()
-                },
-                southWest: {
-                    latitude: southWest.lat(),
-                    longitude: southWest.lng()
-                }
-            };
-        };
-
-        this.addListener = function (event, listener) {
-            if (event === 'boundsChanged') {
-                var timeout;
-                var wrappedListener = function () {
-                    // - debounces google maps event
-                    // - hides potential arguments from google API from this API
-                    clearTimeout(timeout);
-                    timeout = setTimeout(listener, 100);
-                };
-                self.map.addListener('bounds_changed', wrappedListener);
-            } else {
-                throw 'unknown event: ' + event;
-            }
-        };
-
-        // TODO function to remove listeners
-
-        this.addMarker = function (geoPosition, title) {
-            var marker = new google.maps.Marker({
-                position: {lat: geoPosition.latitude, lng: geoPosition.longitude},
-                map: self.map,
-                title: title
-            });
-            markers.push(marker);
-        };
-
-        this.clearAllMarkers = function () {
-            for (var i = 0; i < markers.length; i++) {
-                markers[i].setMap(null);
-            }
-            markers = [];
-        };
-    };
-
     return {
-        loadMap: loadGoogleMap
+        loadMap: function (options, callback) {
+            var callbackName = 'initGoogleMap_' + loader.makeId(10);
+            window[callbackName] = function () {
+                delete window[callbackName];
+                var googleMap = new GoogleMap(options);
+
+                google.maps.event.addListenerOnce(googleMap.map, "bounds_changed", function () {
+                    // for compatibility with other APIs: getArea() should be ready immediately:
+                    callback(googleMap);
+                });
+            };
+            var keyStr = options.credentials ? 'key=' + options.credentials + '&' : '';
+            loader.loadjsfile('https://maps.googleapis.com/maps/api/js?' + keyStr + 'callback=' + callbackName);
+        }
     };
 
 });

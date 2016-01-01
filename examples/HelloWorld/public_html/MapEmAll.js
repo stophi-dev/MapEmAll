@@ -565,7 +565,7 @@ define('JSLoader',[], function () {
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Philip Stöhrer
+ * Copyright (c) 2016 Philip Stöhrer
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -588,18 +588,8 @@ define('JSLoader',[], function () {
 
 /* global Microsoft */
 
-define('provider/Bing',['JSLoader'], function (loader) {
+define('provider/BingMap',[],function () {
     'use strict';
-
-    function loadBingMap(options, callback) {
-        var callbackName = 'initBingMap_' + loader.makeId(10);
-
-        window[callbackName] = function () {
-            delete window[callbackName];
-            callback(new BingMap(options));
-        };
-        loader.loadjsfile('http://dev.virtualearth.net/mapcontrol/mapcontrol.ashx?v=7.0&onscriptload=' + callbackName);
-    }
 
     var BingMap = function BingMap(options) {
         var mapOptions = {
@@ -640,10 +630,11 @@ define('provider/Bing',['JSLoader'], function (loader) {
         };
     };
 
-    return {
-        loadMap: loadBingMap
-    };
+    return BingMap;
 });
+
+
+
 /*
  * The MIT License (MIT)
  *
@@ -668,25 +659,49 @@ define('provider/Bing',['JSLoader'], function (loader) {
  * THE SOFTWARE.
  */
 
-/* global google */
-
-define('provider/Google',['JSLoader'], function (loader) {
+define('provider/Bing',['JSLoader', 'provider/BingMap'], function (loader, BingMap) {
     'use strict';
 
-    function loadGoogleMap(options, callback) {
-        var callbackName = 'initGoogleMap_' + loader.makeId(10);
-        window[callbackName] = function () {
-            delete window[callbackName];
-            var googleMap = new GoogleMap(options);
+    return {
+        loadMap: function (options, callback) {
+            var callbackName = 'initBingMap_' + loader.makeId(10);
 
-            google.maps.event.addListenerOnce(googleMap.map, "bounds_changed", function () {
-                // for compatibility with other APIs: getArea() should be ready immediately:
-                callback(googleMap);
-            });
-        };
-        var keyStr = options.credentials ? 'key=' + options.credentials + '&' : '';
-        loader.loadjsfile('https://maps.googleapis.com/maps/api/js?' + keyStr + 'callback=' + callbackName);
-    }
+            window[callbackName] = function () {
+                delete window[callbackName];
+                callback(new BingMap(options));
+            };
+            loader.loadjsfile('http://dev.virtualearth.net/mapcontrol/mapcontrol.ashx?v=7.0&onscriptload=' + callbackName);
+        }
+    };
+});
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2016 Philip Stöhrer
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
+/* global google */
+
+define('provider/GoogleMap',[],function () {
+    'use strict';
 
     var GoogleMap = function (options) {
         var self = this;
@@ -746,11 +761,11 @@ define('provider/Google',['JSLoader'], function (loader) {
         };
     };
 
-    return {
-        loadMap: loadGoogleMap
-    };
-
+    return GoogleMap;
 });
+
+
+
 /*
  * The MIT License (MIT)
  *
@@ -775,19 +790,59 @@ define('provider/Google',['JSLoader'], function (loader) {
  * THE SOFTWARE.
  */
 
-/* global OpenLayers */
+/* global google */
 
-define('provider/OSM',['JSLoader'], function (loader) {
+define('provider/Google',['JSLoader', 'provider/GoogleMap'], function (loader, GoogleMap) {
     'use strict';
 
-    function loadOpenLayersMap(options, callback) {
-        loader.loadjsfile('http://www.openlayers.org/api/OpenLayers.js', function () {
-            callback(new OSMMap(options));
-        });
-    }
+    return {
+        loadMap: function (options, callback) {
+            var callbackName = 'initGoogleMap_' + loader.makeId(10);
+            window[callbackName] = function () {
+                delete window[callbackName];
+                var googleMap = new GoogleMap(options);
 
+                google.maps.event.addListenerOnce(googleMap.map, "bounds_changed", function () {
+                    // for compatibility with other APIs: getArea() should be ready immediately:
+                    callback(googleMap);
+                });
+            };
+            var keyStr = options.credentials ? 'key=' + options.credentials + '&' : '';
+            loader.loadjsfile('https://maps.googleapis.com/maps/api/js?' + keyStr + 'callback=' + callbackName);
+        }
+    };
 
-    var OSMMap = function (options) {
+});
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2016 Philip Stöhrer
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
+/* global OpenLayers */
+
+define('provider/OSMap',[],function () {
+    'use strict';
+
+    var OSMap = function (options) {
 
         var map = new OpenLayers.Map(options.htmlContainer.getAttribute('id'));
         map.displayProjection = new OpenLayers.Projection("EPSG:4326");
@@ -852,8 +907,44 @@ define('provider/OSM',['JSLoader'], function (loader) {
         };
     };
 
+    return OSMap;
+});
+
+
+
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2015 Philip Stöhrer
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
+define('provider/OSM',['JSLoader', 'provider/OSMap'], function (loader, OSMap) {
+    'use strict';
+
     return {
-        loadMap: loadOpenLayersMap
+        loadMap: function (options, callback) {
+            loader.loadjsfile('http://www.openlayers.org/api/OpenLayers.js', function () {
+                callback(new OSMap(options));
+            });
+        }
     };
 
 });
