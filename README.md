@@ -1,12 +1,12 @@
 # MapEmAll 
-![Build Status](https://api.travis-ci.org/stophi-dev/MapEmAll.svg?branch=master)
+[![Build Status](https://api.travis-ci.org/stophi-dev/MapEmAll.svg?branch=master)](https://travis-ci.org/stophi-dev/MapEmAll)
 [![Coverage](https://codecov.io/github/stophi-dev/MapEmAll/coverage.svg?branch=master)](https://codecov.io/github/stophi-dev/MapEmAll?branch=master)
 
 One API for multiple map providers. 
 Currently supported: 
-* Google Maps
-* Bing Maps 
-* OpenStreetMap (OpenLayers)
+* [Google Maps](https://developers.google.com/maps/documentation/javascript/reference)
+* [Bing Maps](https://msdn.microsoft.com/en-us/library/gg427610.aspx) 
+* [OpenStreetMap (OpenLayers)](http://openlayers.org/en/v3.12.1/apidoc/)
 
 **The API is very limited at this stage and is likely to change in the future.**
 
