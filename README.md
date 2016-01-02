@@ -4,9 +4,9 @@
 
 One API for multiple map providers. 
 Currently supported: 
-* [Google Maps](https://developers.google.com/maps/documentation/javascript/reference)
-* [Bing Maps](https://msdn.microsoft.com/en-us/library/gg427610.aspx) 
-* [OpenStreetMap (OpenLayers)](http://openlayers.org/en/v3.12.1/apidoc/)
+* [Google Maps (JavaScript API V3)](https://developers.google.com/maps/documentation/javascript/)
+* [Bing Maps (Ajax Control, Version 7.0)](https://msdn.microsoft.com/de-de/library/gg427610.aspx) 
+* [OpenStreetMap (OpenLayers 2)](http://openlayers.org/two/)
 
 **The API is very limited at this stage and is likely to change in the future.**
 
