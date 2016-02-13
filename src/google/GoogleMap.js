@@ -9,7 +9,7 @@
 
 /* global google */
 
-define(['provider/GoogleMarker'], function (GoogleMarker) {
+define(['google/GoogleMarker'], function (GoogleMarker) {
     'use strict';
 
     var GoogleMap = function (options) {

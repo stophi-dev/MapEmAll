@@ -10,9 +10,9 @@
 define([], function () {
     'use strict';
     var providers = {
-        bing: 'provider/Bing',
-        google: 'provider/Google',
-        osm: 'provider/OSM'
+        bing: 'bing/Bing',
+        google: 'google/Google',
+        osm: 'osm/OSM'
     };
 
     var result = {

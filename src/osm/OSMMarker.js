@@ -11,7 +11,9 @@
 
 define(function () {
     'use strict';
-
+        
+    // TODO use OpenLayers Vector instead of Marker. This will be more flexible
+    
     function OSMMarker(osmConverter, nativeMarkerLayer, geoPosition, initialTitle) {
         var self = this;
         var markerTitle = initialTitle;

@@ -9,7 +9,7 @@
 
 /* global Microsoft */
 
-define(['JSLoader', 'provider/BingMarker'], function (loader, BingMarker) {
+define(['JSLoader', 'bing/BingMarker'], function (loader, BingMarker) {
     'use strict';
 
     var BingMap = function BingMap(options) {

@@ -7,7 +7,7 @@
  * See https://raw.githubusercontent.com/stophi-dev/MapEmAll/master/LICENSE for details.
  */
 
-define(['JSLoader', 'provider/BingMap'], function (loader, BingMap) {
+define(['JSLoader', 'bing/BingMap'], function (loader, BingMap) {
     'use strict';
 
     function preventMapToBeGloballyAbsolute(htmlElement) {

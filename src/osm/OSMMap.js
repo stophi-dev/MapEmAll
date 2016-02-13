@@ -9,7 +9,7 @@
 
 /* global OpenLayers */
 
-define(['provider/OSMConverter', 'provider/OSMMarker'], function (OSMConverter, OSMMarker) {
+define(['osm/OSMConverter', 'osm/OSMMarker'], function (OSMConverter, OSMMarker) {
     'use strict';
 
     var OSMap = function (options) {

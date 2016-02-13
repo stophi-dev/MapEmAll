@@ -7,7 +7,7 @@
  * See https://raw.githubusercontent.com/stophi-dev/MapEmAll/master/LICENSE for details.
  */
 
-define(['JSLoader', 'provider/OSMMap'], function (loader, OSMMap) {
+define(['JSLoader', 'osm/OSMMap'], function (loader, OSMMap) {
     'use strict';
 
     return {
