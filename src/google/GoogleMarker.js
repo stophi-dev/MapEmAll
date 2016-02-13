@@ -15,30 +15,30 @@ define(function () {
     function GoogleMarker(providerMap, geoPosition, title) {
         var self = this;
 
-        this._providerMarker = new google.maps.Marker({
+        this._nativeMarker = new google.maps.Marker({
             position: {lat: geoPosition.latitude, lng: geoPosition.longitude},
             map: providerMap,
             title: title
         });
 
         self.setGeoPosition = function (geoPosition) {
-            self._providerMarker.setPosition({
+            self._nativeMarker.setPosition({
                 lat: geoPosition.latitude,
                 lng: geoPosition.longitude});
         };
 
         self.getGeoPosition = function () {
             return {
-                latitude: self._providerMarker.position.lat(),
-                longitude: self._providerMarker.position.lng()};
+                latitude: self._nativeMarker.position.lat(),
+                longitude: self._nativeMarker.position.lng()};
         };
 
         self.getTitle = function () {
-            return self._providerMarker.getTitle();
+            return self._nativeMarker.getTitle();
         };
 
         self.setTitle = function (title) {
-            self._providerMarker.setTitle(title);
+            self._nativeMarker.setTitle(title);
         };
     }
 

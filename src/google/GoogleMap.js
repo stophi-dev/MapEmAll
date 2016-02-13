@@ -68,7 +68,7 @@ define(['google/GoogleMarker'], function (GoogleMarker) {
 
         this.clearAllMarkers = function () {
             for (var i = 0; i < markers.length; i++) {
-                markers[i]._providerMarker.setMap(null);
+                markers[i]._nativeMarker.setMap(null);
             }
             markers = [];
         };
