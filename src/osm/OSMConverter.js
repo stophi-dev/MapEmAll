@@ -10,6 +10,8 @@
 /* global OpenLayers */
 
 define(function () {
+    'use strict';
+    
     function OSMConverter(osmMap) {
         var self = this;
         self.osmMap = osmMap;
