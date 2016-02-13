@@ -457,9 +457,9 @@ define("../build/almond", function(){});
 define('Main',[], function () {
     'use strict';
     var providers = {
-        bing: 'provider/Bing',
-        google: 'provider/Google',
-        osm: 'provider/OSM'
+        bing: 'bing/Bing',
+        google: 'google/Google',
+        osm: 'osm/OSM'
     };
 
     var result = {
@@ -548,18 +548,95 @@ define('JSLoader',[], function () {
 
 /* global Microsoft */
 
-define('provider/BingMap',['JSLoader'], function (loader) {
+define('bing/BingMarker',['JSLoader'], function (loader) {
+    'use strict';
+
+    var BingMarker = function (providerMap, geoPosition, title) {
+        var self = this;
+        var pinId = 'bing_pushpin_' + loader.makeId(20);
+
+        var location = toBingLocation(geoPosition);
+        self._providerMarker = new Microsoft.Maps.Pushpin(location, {id: pinId});
+        providerMap.entities.push(self._providerMarker);
+
+        addTooltipToPin(pinId, title);
+
+
+        self.setGeoPosition = function (geoPosition) {
+            self._providerMarker.setLocation(toBingLocation(geoPosition));
+        };
+
+        self.getGeoPosition = function () {
+            return toGeoPosition(self._providerMarker.getLocation());
+        };
+
+        self.getTitle = function () {
+            return getTooltipFromPin(pinId);
+        };
+
+        self.setTitle = function (title) {
+            addTooltipToPin(pinId, title);
+        };
+    };
+
+    function addTooltipToPin(pinId, tooltipText) {
+        var pinElement = document.getElementById(pinId);
+        var children = Array.prototype.slice.call(pinElement.childNodes);
+        children.forEach(function (child) {
+            child.setAttribute('title', tooltipText);
+        });
+    }
+
+    function getTooltipFromPin(pinId) {
+        var pinElement = document.getElementById(pinId);
+        var children = Array.prototype.slice.call(pinElement.childNodes);
+        for (var i=0; i < children.length; i++) {
+            var title = children[i].getAttribute('title');
+            if (title) {
+                return title;
+            }
+        }
+        return '';
+    }
+
+    function toBingLocation(geoPosition) {
+        return new Microsoft.Maps.Location(geoPosition.latitude, geoPosition.longitude);
+    }
+
+    function toGeoPosition(bingLocation) {
+        return {latitude: bingLocation.latitude, longitude: bingLocation.longitude};
+    }
+
+    return BingMarker;
+});
+
+
+
+/*
+ * MapEmAll is licensed under the conditions of the MIT License (MIT)
+ *
+ * Copyright (c) 2015-2016 Philip Stöhrer
+ * All rights reserved.
+ *
+ * See https://raw.githubusercontent.com/stophi-dev/MapEmAll/master/LICENSE for details.
+ */
+
+/* global Microsoft */
+
+define('bing/BingMap',['JSLoader', 'bing/BingMarker'], function (loader, BingMarker) {
     'use strict';
 
     var BingMap = function BingMap(options) {
+        var self = this;
         var mapOptions = {
             credentials: options.credentials,
             center: new Microsoft.Maps.Location(options.center.latitude, options.center.longitude),
             zoom: 16
         };
-        var map = new Microsoft.Maps.Map(options.htmlContainer, mapOptions);
-        this.getArea = function () {
-            var bounds = map.getBounds();
+
+        self._nativeMap = new Microsoft.Maps.Map(options.htmlContainer, mapOptions);
+        self.getArea = function () {
+            var bounds = self._nativeMap.getBounds();
             return {
                 northEast: {
                     latitude: bounds.getNorth(),
@@ -572,33 +649,56 @@ define('provider/BingMap',['JSLoader'], function (loader) {
             };
         };
 
-        this.addMarker = function (geoPosition, title) {
-            var pinId = 'bing_pushpin_' + loader.makeId(20);
-
-            var location = new Microsoft.Maps.Location(geoPosition.latitude, geoPosition.longitude);
-            var pin = new Microsoft.Maps.Pushpin(location, {id: pinId});
-            map.entities.push(pin);
-
-            addTooltipToPin(pinId, title);
+        self.addMarker = function (geoPosition, title) {
+            return new BingMarker(self._nativeMap, geoPosition, title);
         };
-
-        function addTooltipToPin(pinId, tooltipText) {
-            var pinElement = document.getElementById(pinId);
-            var children = Array.prototype.slice.call(pinElement.childNodes);
-            children.forEach(function(child) {
-                child.setAttribute('title', tooltipText);
-            });
-        }
 
         this.addListener = function (event, listener) {
             if (event === 'boundsChanged') {
-                Microsoft.Maps.Events.addHandler(map, 'viewchangeend', listener);
-                // TODO maybe needs to be debounced, like google API
+                var wrappedListener = function () {
+                    listener();
+                };
+                Microsoft.Maps.Events.addHandler(self._nativeMap, 'viewchangeend', wrappedListener);
+                
+            } else if (event === 'click') {
+                var wrappedListener = function (event) {
+                    if (event.targetType === "map") {
+                        var point = new Microsoft.Maps.Point(event.getX(), event.getY());
+                        var bingLocation = event.target.tryPixelToLocation(point);
+                        var geoPosition = {latitude: bingLocation.latitude, longitude: bingLocation.longitude};                        
+                        listener(geoPosition);
+                    }
+                };
+                Microsoft.Maps.Events.addHandler(self._nativeMap, 'click', wrappedListener);
+            } else {
+                throw 'unknown event: ' + event;
             }
         };
 
         this.clearAllMarkers = function () {
-            map.entities.clear();
+            self._nativeMap.entities.clear();
+        };
+
+        this._triggerMouseClick = function (geoPosition) {
+            Microsoft.Maps.Events.invoke(self._nativeMap, 'click', {
+                eventName: 'click',
+                getX: function () {                                            
+                    return self._nativeMap.tryLocationToPixel(geoPosition).x;                                        
+                },
+                getY: function () {
+                    return self._nativeMap.tryLocationToPixel(geoPosition).y;
+                },
+                isPrimary: true,
+                isSecondary: false,
+                isTouchEvent: false,
+                mouseMoved: false,
+                originalEvent: null,
+                pageX: 0,
+                pageY: 0,
+                target: self._nativeMap,
+                targetType: 'map',
+                wheelDelta: 0
+            });
         };
     };
 
@@ -616,7 +716,7 @@ define('provider/BingMap',['JSLoader'], function (loader) {
  * See https://raw.githubusercontent.com/stophi-dev/MapEmAll/master/LICENSE for details.
  */
 
-define('provider/Bing',['JSLoader', 'provider/BingMap'], function (loader, BingMap) {
+define('bing/Bing',['JSLoader', 'bing/BingMap'], function (loader, BingMap) {
     'use strict';
 
     function preventMapToBeGloballyAbsolute(htmlElement) {
@@ -654,21 +754,72 @@ define('provider/Bing',['JSLoader', 'provider/BingMap'], function (loader, BingM
 
 /* global google */
 
-define('provider/GoogleMap',[],function () {
+define('google/GoogleMarker',[],function () {
+    'use strict';
+
+    function GoogleMarker(providerMap, geoPosition, title) {
+        var self = this;
+
+        this._providerMarker = new google.maps.Marker({
+            position: {lat: geoPosition.latitude, lng: geoPosition.longitude},
+            map: providerMap,
+            title: title
+        });
+
+        self.setGeoPosition = function (geoPosition) {
+            self._providerMarker.setPosition({
+                lat: geoPosition.latitude,
+                lng: geoPosition.longitude});
+        };
+
+        self.getGeoPosition = function () {
+            return {
+                latitude: self._providerMarker.position.lat(),
+                longitude: self._providerMarker.position.lng()};
+        };
+
+        self.getTitle = function () {
+            return self._providerMarker.getTitle();
+        };
+
+        self.setTitle = function (title) {
+            self._providerMarker.setTitle(title);
+        };
+    }
+
+    return GoogleMarker;
+
+});
+
+
+
+
+/*
+ * MapEmAll is licensed under the conditions of the MIT License (MIT)
+ *
+ * Copyright (c) 2015-2016 Philip Stöhrer
+ * All rights reserved.
+ *
+ * See https://raw.githubusercontent.com/stophi-dev/MapEmAll/master/LICENSE for details.
+ */
+
+/* global google */
+
+define('google/GoogleMap',['google/GoogleMarker'], function (GoogleMarker) {
     'use strict';
 
     var GoogleMap = function (options) {
         var self = this;
         var markers = [];
 
-        this.map = new google.maps.Map(options.htmlContainer, {
+        this._nativeMap = new google.maps.Map(options.htmlContainer, {
             center: {lat: options.center.latitude, lng: options.center.longitude},
             zoom: 16
         });
 
         this.getArea = function () {
-            var northEast = self.map.getBounds().getNorthEast();
-            var southWest = self.map.getBounds().getSouthWest();
+            var northEast = self._nativeMap.getBounds().getNorthEast();
+            var southWest = self._nativeMap.getBounds().getSouthWest();
             return {
                 northEast: {
                     latitude: northEast.lat(),
@@ -690,28 +841,38 @@ define('provider/GoogleMap',[],function () {
                     clearTimeout(timeout);
                     timeout = setTimeout(listener, 100);
                 };
-                self.map.addListener('bounds_changed', wrappedListener);
+                self._nativeMap.addListener('bounds_changed', wrappedListener);
+            } else if (event === 'click') {
+                var wrappedListener = function (location) {
+                    listener({latitude: location.latLng.lat(),
+                        longitude: location.latLng.lng()});
+                };
+                self._nativeMap.addListener('click', wrappedListener);
             } else {
                 throw 'unknown event: ' + event;
             }
         };
 
+
         // TODO function to remove listeners
 
         this.addMarker = function (geoPosition, title) {
-            var marker = new google.maps.Marker({
-                position: {lat: geoPosition.latitude, lng: geoPosition.longitude},
-                map: self.map,
-                title: title
-            });
-            markers.push(marker);
+            var newMarker = new GoogleMarker(self._nativeMap, geoPosition, title);
+            markers.push(newMarker);
+            return newMarker;
         };
 
         this.clearAllMarkers = function () {
             for (var i = 0; i < markers.length; i++) {
-                markers[i].setMap(null);
+                markers[i]._providerMarker.setMap(null);
             }
             markers = [];
+        };
+        
+        this._triggerMouseClick = function (geoPosition) {
+            google.maps.event.trigger(self._nativeMap, 'click', {
+                latLng: new google.maps.LatLng(geoPosition.latitude, geoPosition.longitude)
+            });
         };
     };
 
@@ -731,7 +892,7 @@ define('provider/GoogleMap',[],function () {
 
 /* global google */
 
-define('provider/Google',['JSLoader', 'provider/GoogleMap'], function (loader, GoogleMap) {
+define('google/Google',['JSLoader', 'google/GoogleMap'], function (loader, GoogleMap) {
     'use strict';
 
     return {
@@ -741,7 +902,7 @@ define('provider/Google',['JSLoader', 'provider/GoogleMap'], function (loader, G
                 delete window[callbackName];
                 var googleMap = new GoogleMap(options);
 
-                google.maps.event.addListenerOnce(googleMap.map, "bounds_changed", function () {
+                google.maps.event.addListenerOnce(googleMap._nativeMap, "bounds_changed", function () {
                     // for compatibility with other APIs: getArea() should be ready immediately:
                     callback(googleMap);
                 });
@@ -750,6 +911,97 @@ define('provider/Google',['JSLoader', 'provider/GoogleMap'], function (loader, G
             loader.loadjsfile('https://maps.googleapis.com/maps/api/js?' + keyStr + 'callback=' + callbackName);
         }
     };
+
+});
+/* 
+ * MapEmAll is licensed under the conditions of the MIT License (MIT)
+ *
+ * Copyright (c) 2015-2016 Philip Stöhrer
+ * All rights reserved.
+ *
+ * See https://raw.githubusercontent.com/stophi-dev/MapEmAll/master/LICENSE for details.
+ */
+
+/* global OpenLayers */
+
+define('osm/OSMConverter',[],function () {
+    function OSMConverter(osmMap) {
+        var self = this;
+        self.osmMap = osmMap;
+
+        self.toOsmLonLat = function (geoPosition) {
+            return new OpenLayers.LonLat(geoPosition.longitude, geoPosition.latitude)
+                    .transform(
+                            osmMap.displayProjection, // transform from WGS 1984
+                            osmMap.getProjectionObject() // to Spherical Mercator Projection
+                            );
+        };
+
+        self.toGeoPosition = function (osmLonLat) {
+            // Need new lonlat so that original osmLonLat is not affected by transformation
+            var lonLatClone = new OpenLayers.LonLat(osmLonLat.lon, osmLonLat.lat);
+            
+            var position = lonLatClone.transform(
+                    osmMap.getProjectionObject(),
+                    osmMap.displayProjection);
+            return {
+                latitude: position.lat,
+                longitude: position.lon
+            };
+
+        };
+    };
+
+    return OSMConverter;
+});
+
+/* 
+ * MapEmAll is licensed under the conditions of the MIT License (MIT)
+ *
+ * Copyright (c) 2015-2016 Philip Stöhrer
+ * All rights reserved.
+ *
+ * See https://raw.githubusercontent.com/stophi-dev/MapEmAll/master/LICENSE for details.
+ */
+
+/* global OpenLayers */
+
+define('osm/OSMMarker',[],function () {
+    'use strict';
+        
+    // TODO use OpenLayers Vector instead of Marker. This will be more flexible
+    
+    function OSMMarker(osmConverter, nativeMarkerLayer, geoPosition, initialTitle) {
+        var self = this;
+        var markerTitle = initialTitle;
+
+        self._nativeMarker = new OpenLayers.Marker(osmConverter.toOsmLonLat(geoPosition));
+        nativeMarkerLayer.addMarker(self._nativeMarker);
+
+        self.setGeoPosition = function (geoPosition) {           
+            nativeMarkerLayer.removeMarker(self._nativeMarker);
+            self._nativeMarker.lonlat = osmConverter.toOsmLonLat(geoPosition);
+            nativeMarkerLayer.addMarker(self._nativeMarker);  
+        };
+
+        self.getGeoPosition = function () {
+
+            var geoPosition = osmConverter.toGeoPosition(self._nativeMarker.lonlat);
+            return geoPosition;
+        };
+
+        self.getTitle = function () {
+            // TODO implement title to be a tooltip of marker 
+            // title currently has no real effet
+            return markerTitle;
+        };
+
+        self.setTitle = function (title) {
+            markerTitle = title;
+        };
+    }
+
+    return OSMMarker;
 
 });
 /*
@@ -763,71 +1015,106 @@ define('provider/Google',['JSLoader', 'provider/GoogleMap'], function (loader, G
 
 /* global OpenLayers */
 
-define('provider/OSMap',[],function () {
+define('osm/OSMMap',['osm/OSMConverter', 'osm/OSMMarker'], function (OSMConverter, OSMMarker) {
     'use strict';
 
     var OSMap = function (options) {
+        var self = this;
 
-        var map = new OpenLayers.Map(options.htmlContainer.getAttribute('id'));
-        map.displayProjection = new OpenLayers.Projection("EPSG:4326");
-        map.addLayer(new OpenLayers.Layer.OSM());
-
-        function toOsmLonLat(geoPosition) {
-            return new OpenLayers.LonLat(geoPosition.longitude, geoPosition.latitude)
-                    .transform(
-                            map.displayProjection, // transform from WGS 1984
-                            map.getProjectionObject() // to Spherical Mercator Projection
-                            );
-        }
-
-        function toGeoPosition(osmLonLat) {
-            var position = osmLonLat.transform(
-                    map.getProjectionObject(),
-                    map.displayProjection);
-            return {
-                latitude: position.lat,
-                longitude: position.lon
-            };
-        }
+        self._nativeMap = new OpenLayers.Map(options.htmlContainer.getAttribute('id'));
+        self._nativeMap.displayProjection = new OpenLayers.Projection("EPSG:4326");
+        self._nativeMap.addLayer(new OpenLayers.Layer.OSM());
 
         var zoom = 16;
 
-        var markers = new OpenLayers.Layer.Markers("Markers");
-        map.addLayer(markers);
+        var nativeMarkerLayer = new OpenLayers.Layer.Markers("Markers");
+        self._nativeMap.addLayer(nativeMarkerLayer);
 
-        map.setCenter(toOsmLonLat(options.center), zoom);
+        var osmConverter = new OSMConverter(self._nativeMap);
+        self._nativeMap.setCenter(osmConverter.toOsmLonLat(options.center), zoom);
 
         this.getArea = function () {
             // this only works when map is not rotated (north at top)
-            var bounds = map.getExtent();
+            var bounds = self._nativeMap.getExtent();
 
             return {
-                northEast: toGeoPosition(new OpenLayers.LonLat(bounds.right, bounds.top)),
-                southWest: toGeoPosition(new OpenLayers.LonLat(bounds.left, bounds.bottom))
+                northEast: osmConverter.toGeoPosition(new OpenLayers.LonLat(bounds.right, bounds.top)),
+                southWest: osmConverter.toGeoPosition(new OpenLayers.LonLat(bounds.left, bounds.bottom))
             };
         };
 
+        var clickListeners = [];
+        var clickControl;
+        function getClickControl() {
+            if (!clickControl) {
+                OpenLayers.Control.Click = OpenLayers.Class(OpenLayers.Control, {
+                    defaultHandlerOptions: {
+                        'single': true,
+                        'double': false,
+                        'pixelTolerance': 0,
+                        'stopSingle': false,
+                        'stopDouble': false
+                    },
+                    initialize: function (options) {
+                        this.handlerOptions = OpenLayers.Util.extend(
+                                {}, this.defaultHandlerOptions
+                                );
+                        OpenLayers.Control.prototype.initialize.apply(
+                                this, arguments
+                                );
+                        this.handler = new OpenLayers.Handler.Click(
+                                this, {
+                                    'click': this.trigger
+                                }, this.handlerOptions
+                                );
+                    },
+                    trigger: function (event) {
+                        var lonlat = self._nativeMap.getLonLatFromPixel(event.xy);
+                        for (var i = 0; i < clickListeners.length; i++) {
+                            clickListeners[i](osmConverter.toGeoPosition(lonlat));
+                        }
+                    }
+
+                });
+                clickControl = new OpenLayers.Control.Click();
+                self._nativeMap.addControl(clickControl);
+                clickControl.activate();
+            }
+            return clickControl;
+        }
+
         this.addListener = function (event, listener) {
             if (event === 'boundsChanged') {
-                map.events.register("moveend", map, listener);
-                map.events.register("zoomend", map, listener);
+                self._nativeMap.events.register("moveend", self._nativeMap, listener);
+                self._nativeMap.events.register("zoomend", self._nativeMap, listener);
+            } else if (event === 'click') {
+                getClickControl();
+                clickListeners.push(listener);
+            } else {
+                throw 'unknown event: ' + event;
             }
         };
 
         // TODO remove listener function
 
         this.addMarker = function (geoPosition, title) {
-            var lonLat = toOsmLonLat(geoPosition);
-            markers.addMarker(new OpenLayers.Marker(lonLat));
+            var marker = new OSMMarker(osmConverter, nativeMarkerLayer, geoPosition, title);
+            return marker;
         };
 
         this.clearAllMarkers = function () {
             // TODO could be improved ?!
-            map.removeLayer(markers);
-            markers.destroy();
-            markers = new OpenLayers.Layer.Markers("Markers");
-            map.addLayer(markers);
+            self._nativeMap.removeLayer(nativeMarkerLayer);
+            nativeMarkerLayer.destroy();
+            nativeMarkerLayer = new OpenLayers.Layer.Markers("Markers");
+            self._nativeMap.addLayer(nativeMarkerLayer);
 
+        };
+        
+        this._triggerMouseClick = function(geoPosition) {
+            var lonLat = osmConverter.toOsmLonLat(geoPosition);
+            var pixel = self._nativeMap.getPixelFromLonLat(lonLat);
+            self._nativeMap.events.triggerEvent('click', {xy: pixel});
         };
     };
 
@@ -845,13 +1132,13 @@ define('provider/OSMap',[],function () {
  * See https://raw.githubusercontent.com/stophi-dev/MapEmAll/master/LICENSE for details.
  */
 
-define('provider/OSM',['JSLoader', 'provider/OSMap'], function (loader, OSMap) {
+define('osm/OSM',['JSLoader', 'osm/OSMMap'], function (loader, OSMMap) {
     'use strict';
 
     return {
         loadMap: function (options, callback) {
             loader.loadjsfile('http://www.openlayers.org/api/OpenLayers.js', function () {
-                callback(new OSMap(options));
+                callback(new OSMMap(options));
             });
         }
     };

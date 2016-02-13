@@ -7,12 +7,12 @@
         "../build/almond",
         "Main",
         "JSLoader",
-        "provider/Bing",
-        "provider/Google",
-        "provider/OSM"
+        "bing/Bing",
+        "google/Google",
+        "osm/OSM"
     ],
     "wrap": {
         "startFile": "start.frag",
         "endFile": "end.frag"
-    }
+    },    
 }
