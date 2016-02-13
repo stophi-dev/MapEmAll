@@ -24,14 +24,6 @@ define(function () {
             reloadMap(this.value);
         });
 
-        $('#addMarkerToCenter').on('click', function () {
-            var area = map.getArea();
-            var latitude = (area.northEast.latitude + area.southWest.latitude) / 2;
-            var longitude = (area.northEast.longitude + area.southWest.longitude) / 2;
-
-            map.addMarker({latitude: latitude, longitude: longitude}, 'Marker');
-        });
-
         $('#clearAllMarkers').on('click', function () {
             map.clearAllMarkers();
         });
@@ -45,8 +37,14 @@ define(function () {
             MapEmAll.provider = provider;
             MapEmAll.loadMap(function (loadedMap) {
                 map = loadedMap;
+                var clickCount = 0;
                 map.addListener('boundsChanged', function () {
                     $('#showArea').text(areaToString(map.getArea()));
+                });
+
+                map.addListener('click', function (geoPosition) {
+                    clickCount += 1;
+                    map.addMarker(geoPosition, 'Marker ' + clickCount);
                 });
             });
         }

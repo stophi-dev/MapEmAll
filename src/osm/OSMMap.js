@@ -14,11 +14,11 @@ define(['osm/OSMConverter', 'osm/OSMMarker'], function (OSMConverter, OSMMarker)
 
     var OSMap = function (options) {
         var self = this;
-        
+
         self._nativeMap = new OpenLayers.Map(options.htmlContainer.getAttribute('id'));
         self._nativeMap.displayProjection = new OpenLayers.Projection("EPSG:4326");
         self._nativeMap.addLayer(new OpenLayers.Layer.OSM());
-        
+
         var zoom = 16;
 
         var nativeMarkerLayer = new OpenLayers.Layer.Markers("Markers");
@@ -37,17 +37,62 @@ define(['osm/OSMConverter', 'osm/OSMMarker'], function (OSMConverter, OSMMarker)
             };
         };
 
+        var clickListeners = [];
+        var clickControl;
+        function getClickControl() {
+            if (!clickControl) {
+                OpenLayers.Control.Click = OpenLayers.Class(OpenLayers.Control, {
+                    defaultHandlerOptions: {
+                        'single': true,
+                        'double': false,
+                        'pixelTolerance': 0,
+                        'stopSingle': false,
+                        'stopDouble': false
+                    },
+                    initialize: function (options) {
+                        this.handlerOptions = OpenLayers.Util.extend(
+                                {}, this.defaultHandlerOptions
+                                );
+                        OpenLayers.Control.prototype.initialize.apply(
+                                this, arguments
+                                );
+                        this.handler = new OpenLayers.Handler.Click(
+                                this, {
+                                    'click': this.trigger
+                                }, this.handlerOptions
+                                );
+                    },
+                    trigger: function (event) {
+                        var lonlat = self._nativeMap.getLonLatFromPixel(event.xy);
+                        for (var i = 0; i < clickListeners.length; i++) {
+                            clickListeners[i](osmConverter.toGeoPosition(lonlat));
+                        }
+                    }
+
+                });
+                clickControl = new OpenLayers.Control.Click();
+                self._nativeMap.addControl(clickControl);
+                clickControl.activate();
+            }
+            return clickControl;
+        }
+
         this.addListener = function (event, listener) {
             if (event === 'boundsChanged') {
                 self._nativeMap.events.register("moveend", self._nativeMap, listener);
                 self._nativeMap.events.register("zoomend", self._nativeMap, listener);
+            } else if (event === 'click') {
+                getClickControl();
+                clickListeners.push(listener);
+            } else {
+                throw 'unknown event: ' + event;
             }
         };
 
         // TODO remove listener function
 
         this.addMarker = function (geoPosition, title) {
-            var marker = new OSMMarker(osmConverter, nativeMarkerLayer, geoPosition, title);                        
+            var marker = new OSMMarker(osmConverter, nativeMarkerLayer, geoPosition, title);
             return marker;
         };
 
@@ -58,6 +103,12 @@ define(['osm/OSMConverter', 'osm/OSMMarker'], function (OSMConverter, OSMMarker)
             nativeMarkerLayer = new OpenLayers.Layer.Markers("Markers");
             self._nativeMap.addLayer(nativeMarkerLayer);
 
+        };
+        
+        this._triggerMouseClick = function(geoPosition) {
+            var lonLat = osmConverter.toOsmLonLat(geoPosition);
+            var pixel = self._nativeMap.getPixelFromLonLat(lonLat);
+            self._nativeMap.events.triggerEvent('click', {xy: pixel});
         };
     };
 

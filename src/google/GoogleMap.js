@@ -46,10 +46,17 @@ define(['google/GoogleMarker'], function (GoogleMarker) {
                     timeout = setTimeout(listener, 100);
                 };
                 self._nativeMap.addListener('bounds_changed', wrappedListener);
+            } else if (event === 'click') {
+                var wrappedListener = function (location) {
+                    listener({latitude: location.latLng.lat(),
+                        longitude: location.latLng.lng()});
+                };
+                self._nativeMap.addListener('click', wrappedListener);
             } else {
                 throw 'unknown event: ' + event;
             }
         };
+
 
         // TODO function to remove listeners
 
@@ -64,6 +71,12 @@ define(['google/GoogleMarker'], function (GoogleMarker) {
                 markers[i]._providerMarker.setMap(null);
             }
             markers = [];
+        };
+        
+        this._triggerMouseClick = function (geoPosition) {
+            google.maps.event.trigger(self._nativeMap, 'click', {
+                latLng: new google.maps.LatLng(geoPosition.latitude, geoPosition.longitude)
+            });
         };
     };
 

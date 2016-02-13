@@ -41,13 +41,50 @@ define(['JSLoader', 'bing/BingMarker'], function (loader, BingMarker) {
 
         this.addListener = function (event, listener) {
             if (event === 'boundsChanged') {
-                Microsoft.Maps.Events.addHandler(self._nativeMap, 'viewchangeend', listener);
-                // TODO maybe needs to be debounced, like google API
+                var wrappedListener = function () {
+                    listener();
+                };
+                Microsoft.Maps.Events.addHandler(self._nativeMap, 'viewchangeend', wrappedListener);
+                
+            } else if (event === 'click') {
+                var wrappedListener = function (event) {
+                    if (event.targetType === "map") {
+                        var point = new Microsoft.Maps.Point(event.getX(), event.getY());
+                        var bingLocation = event.target.tryPixelToLocation(point);
+                        var geoPosition = {latitude: bingLocation.latitude, longitude: bingLocation.longitude};                        
+                        listener(geoPosition);
+                    }
+                };
+                Microsoft.Maps.Events.addHandler(self._nativeMap, 'click', wrappedListener);
+            } else {
+                throw 'unknown event: ' + event;
             }
         };
 
         this.clearAllMarkers = function () {
             self._nativeMap.entities.clear();
+        };
+
+        this._triggerMouseClick = function (geoPosition) {
+            Microsoft.Maps.Events.invoke(self._nativeMap, 'click', {
+                eventName: 'click',
+                getX: function () {                                            
+                    return self._nativeMap.tryLocationToPixel(geoPosition).x;                                        
+                },
+                getY: function () {
+                    return self._nativeMap.tryLocationToPixel(geoPosition).y;
+                },
+                isPrimary: true,
+                isSecondary: false,
+                isTouchEvent: false,
+                mouseMoved: false,
+                originalEvent: null,
+                pageX: 0,
+                pageY: 0,
+                target: self._nativeMap,
+                targetType: 'map',
+                wheelDelta: 0
+            });
         };
     };
 

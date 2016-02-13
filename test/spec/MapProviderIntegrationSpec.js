@@ -44,26 +44,30 @@ define(['Main'], function (MapEmAll) {
                 done();
             });
 
-            it('get the area (geo coordinates) of the visible view port', function (done) {
-                expect(map.getArea).to.be.a('function');
-
+            it('get the area (geo coordinates) of the visible view port', function (done) {                
                 var area = map.getArea();
-                expect(area).to.be.an('object');
 
                 var northEast = area.northEast;
-                expect(northEast).to.be.an('object');
-                expect(northEast).to.have.property('latitude');
-                expect(northEast).to.have.property('longitude');
                 expect(northEast.latitude).to.be.greaterThan(center.latitude);
                 expect(northEast.longitude).to.be.greaterThan(center.longitude);
 
                 var southWest = area.southWest;
-                expect(southWest).to.be.an('object');
-                expect(southWest).to.have.property('latitude');
-                expect(southWest).to.have.property('longitude');
                 expect(southWest.latitude).to.be.lessThan(center.latitude);
                 expect(southWest.longitude).to.be.lessThan(center.longitude);
                 done();
+            });
+
+            it('add a click listener to the map', function (done) {
+                expect(map.addListener).to.be.a('function');
+
+                var clickListener = function (geoPosition) {                    
+                    assert.closeTo(geoPosition.latitude, center.latitude, 8);
+                    assert.closeTo(geoPosition.longitude, center.longitude, 8);
+                    done();
+                };
+                
+                map.addListener('click', clickListener);
+                map._triggerMouseClick(center);
             });
 
             it('add a marker to the map', function (done) {
@@ -92,7 +96,7 @@ define(['Main'], function (MapEmAll) {
             });
 
             it('set the title of a marker on the map', function (done) {
-                var marker = map.addMarker(center, 'old title');                
+                var marker = map.addMarker(center, 'old title');
                 marker.setTitle('new title');
 
                 expect(marker.getTitle()).to.equal('new title');
