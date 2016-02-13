@@ -14,6 +14,8 @@ define(['JSLoader', 'bing/BingMarker'], function (loader, BingMarker) {
 
     var BingMap = function BingMap(options) {
         var self = this;
+        var markers = [];
+
         var mapOptions = {
             credentials: options.credentials,
             center: new Microsoft.Maps.Location(options.center.latitude, options.center.longitude),
@@ -35,23 +37,19 @@ define(['JSLoader', 'bing/BingMarker'], function (loader, BingMarker) {
             };
         };
 
-        self.addMarker = function (geoPosition, title) {
-            return new BingMarker(self._nativeMap, geoPosition, title);
-        };
-
         this.addListener = function (event, listener) {
             if (event === 'boundsChanged') {
                 var wrappedListener = function () {
                     listener();
                 };
                 Microsoft.Maps.Events.addHandler(self._nativeMap, 'viewchangeend', wrappedListener);
-                
+
             } else if (event === 'click') {
                 var wrappedListener = function (event) {
                     if (event.targetType === "map") {
                         var point = new Microsoft.Maps.Point(event.getX(), event.getY());
                         var bingLocation = event.target.tryPixelToLocation(point);
-                        var geoPosition = {latitude: bingLocation.latitude, longitude: bingLocation.longitude};                        
+                        var geoPosition = {latitude: bingLocation.latitude, longitude: bingLocation.longitude};
                         listener(geoPosition);
                     }
                 };
@@ -61,15 +59,26 @@ define(['JSLoader', 'bing/BingMarker'], function (loader, BingMarker) {
             }
         };
 
+        self.getMarkers = function() {
+            return markers.slice();
+        };
+
+        self.addMarker = function (geoPosition, title) {
+            var result = new BingMarker(self._nativeMap, geoPosition, title);
+            markers.push(result);
+            return result;
+        };
+
         this.clearAllMarkers = function () {
             self._nativeMap.entities.clear();
+            markers = [];
         };
 
         this._triggerMouseClick = function (geoPosition) {
             Microsoft.Maps.Events.invoke(self._nativeMap, 'click', {
                 eventName: 'click',
-                getX: function () {                                            
-                    return self._nativeMap.tryLocationToPixel(geoPosition).x;                                        
+                getX: function () {
+                    return self._nativeMap.tryLocationToPixel(geoPosition).x;
                 },
                 getY: function () {
                     return self._nativeMap.tryLocationToPixel(geoPosition).y;

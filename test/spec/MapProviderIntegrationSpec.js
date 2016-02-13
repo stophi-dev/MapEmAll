@@ -44,7 +44,7 @@ define(['Main'], function (MapEmAll) {
                 done();
             });
 
-            it('get the area (geo coordinates) of the visible view port', function (done) {                
+            it('get the area (geo coordinates) of the visible view port', function (done) {
                 var area = map.getArea();
 
                 var northEast = area.northEast;
@@ -58,22 +58,28 @@ define(['Main'], function (MapEmAll) {
             });
 
             it('add a click listener to the map', function (done) {
-                expect(map.addListener).to.be.a('function');
 
-                var clickListener = function (geoPosition) {                    
+                var clickListener = function (geoPosition) {
                     assert.closeTo(geoPosition.latitude, center.latitude, 8);
                     assert.closeTo(geoPosition.longitude, center.longitude, 8);
                     done();
                 };
-                
+
                 map.addListener('click', clickListener);
                 map._triggerMouseClick(center);
             });
 
-            it('add a marker to the map', function (done) {
-                expect(map.addMarker).to.be.a('function');
+            it('add an invalid listener to the map throws an exception', function (done) {
+                var addInvalidListener = function () {
+                    map.addListener('asdf', function () {});
+                };
+                expect(addInvalidListener).to.throw('unknown event: ' + 'asdf');
+                done();
+            });
 
+            it('add a marker to the map', function (done) {                
                 var marker = map.addMarker(center, 'marker_title');
+                
                 expect(marker).to.be.an('object');
                 expect(marker.getGeoPosition).to.be.a('function');
                 expect(marker.setGeoPosition).to.be.a('function');
@@ -82,6 +88,16 @@ define(['Main'], function (MapEmAll) {
                 expect(marker.getTitle()).to.equal('marker_title');
                 assert.closeTo(marker.getGeoPosition().latitude, center.latitude, 8);
                 assert.closeTo(marker.getGeoPosition().longitude, center.longitude, 8);
+                expect(map.getMarkers().length).to.equal(1);
+                expect(marker).to.equal(map.getMarkers()[0]);
+                done();
+            });
+
+            it('clear all markers from the map', function (done) {
+                map.addMarker(center, 'marker');                
+                map.clearAllMarkers();
+                
+                expect(map.getMarkers().length).to.equal(0);
                 done();
             });
 

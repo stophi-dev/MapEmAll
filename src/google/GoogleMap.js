@@ -66,13 +66,17 @@ define(['google/GoogleMarker'], function (GoogleMarker) {
             return newMarker;
         };
 
+        this.getMarkers = function () {
+            return markers.slice();
+        };
+
         this.clearAllMarkers = function () {
             for (var i = 0; i < markers.length; i++) {
                 markers[i]._nativeMarker.setMap(null);
             }
             markers = [];
         };
-        
+
         this._triggerMouseClick = function (geoPosition) {
             google.maps.event.trigger(self._nativeMap, 'click', {
                 latLng: new google.maps.LatLng(geoPosition.latitude, geoPosition.longitude)

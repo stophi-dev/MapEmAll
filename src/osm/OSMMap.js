@@ -20,6 +20,7 @@ define(['osm/OSMConverter', 'osm/OSMMarker'], function (OSMConverter, OSMMarker)
         self._nativeMap.addLayer(new OpenLayers.Layer.OSM());
 
         var zoom = 16;
+        var markers = [];
 
         var nativeMarkerLayer = new OpenLayers.Layer.Markers("Markers");
         self._nativeMap.addLayer(nativeMarkerLayer);
@@ -93,7 +94,12 @@ define(['osm/OSMConverter', 'osm/OSMMarker'], function (OSMConverter, OSMMarker)
 
         this.addMarker = function (geoPosition, title) {
             var marker = new OSMMarker(osmConverter, nativeMarkerLayer, geoPosition, title);
+            markers.push(marker);
             return marker;
+        };                        
+
+        this.getMarkers = function() {
+            return markers.slice();
         };
 
         this.clearAllMarkers = function () {
@@ -102,8 +108,8 @@ define(['osm/OSMConverter', 'osm/OSMMarker'], function (OSMConverter, OSMMarker)
             nativeMarkerLayer.destroy();
             nativeMarkerLayer = new OpenLayers.Layer.Markers("Markers");
             self._nativeMap.addLayer(nativeMarkerLayer);
-
-        };
+            markers = [];
+        };        
         
         this._triggerMouseClick = function(geoPosition) {
             var lonLat = osmConverter.toOsmLonLat(geoPosition);
