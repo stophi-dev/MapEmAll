@@ -11,12 +11,12 @@ Currently supported:
 **The API is very limited at this stage and is likely to change in the future.**
 
 ## Why
-If you want to include a map in your web application, you must depend on an external service, which 
-provides the maps for you. To reduce the dependency on a specific provider, it is a good practice,
-to write an abstraction layer. This makes it easy to replace your provider when needed.
+You want to have a map on your website. Therefore, you can use external map providers 
+like Google Maps or Bing Maps. 
+But you want to be flexible. You don't want to depend too much on these map providers. It should be simple to replace them, if you wish to.
 
-MapEmAll is such an abstraction layer to make you more independent. 
-And it is open source (MIT License). You have full control to extend or modify it as you need it.
+What you need is a common API for all map providers and MapEmAll provides this.
+In addition, MapEmAll is open source (MIT License). You have full control to extend or modify it as you need it.
 
 ## Features
 * Load a map (Google, Bing or OpenStreetMap)
