@@ -9,21 +9,21 @@
 
 /* global google */
 
-define(function () {
+define(['provider/GoogleMarker'], function (GoogleMarker) {
     'use strict';
 
     var GoogleMap = function (options) {
         var self = this;
         var markers = [];
 
-        this.map = new google.maps.Map(options.htmlContainer, {
+        this._nativeMap = new google.maps.Map(options.htmlContainer, {
             center: {lat: options.center.latitude, lng: options.center.longitude},
             zoom: 16
         });
 
         this.getArea = function () {
-            var northEast = self.map.getBounds().getNorthEast();
-            var southWest = self.map.getBounds().getSouthWest();
+            var northEast = self._nativeMap.getBounds().getNorthEast();
+            var southWest = self._nativeMap.getBounds().getSouthWest();
             return {
                 northEast: {
                     latitude: northEast.lat(),
@@ -45,7 +45,7 @@ define(function () {
                     clearTimeout(timeout);
                     timeout = setTimeout(listener, 100);
                 };
-                self.map.addListener('bounds_changed', wrappedListener);
+                self._nativeMap.addListener('bounds_changed', wrappedListener);
             } else {
                 throw 'unknown event: ' + event;
             }
@@ -54,17 +54,14 @@ define(function () {
         // TODO function to remove listeners
 
         this.addMarker = function (geoPosition, title) {
-            var marker = new google.maps.Marker({
-                position: {lat: geoPosition.latitude, lng: geoPosition.longitude},
-                map: self.map,
-                title: title
-            });
-            markers.push(marker);
+            var newMarker = new GoogleMarker(self._nativeMap, geoPosition, title);
+            markers.push(newMarker);
+            return newMarker;
         };
 
         this.clearAllMarkers = function () {
             for (var i = 0; i < markers.length; i++) {
-                markers[i].setMap(null);
+                markers[i]._providerMarker.setMap(null);
             }
             markers = [];
         };

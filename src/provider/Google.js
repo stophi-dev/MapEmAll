@@ -19,7 +19,7 @@ define(['JSLoader', 'provider/GoogleMap'], function (loader, GoogleMap) {
                 delete window[callbackName];
                 var googleMap = new GoogleMap(options);
 
-                google.maps.event.addListenerOnce(googleMap.map, "bounds_changed", function () {
+                google.maps.event.addListenerOnce(googleMap._nativeMap, "bounds_changed", function () {
                     // for compatibility with other APIs: getArea() should be ready immediately:
                     callback(googleMap);
                 });

@@ -7,13 +7,13 @@
  * See https://raw.githubusercontent.com/stophi-dev/MapEmAll/master/LICENSE for details.
  */
 
-define(['JSLoader', 'provider/OSMap'], function (loader, OSMap) {
+define(['JSLoader', 'provider/OSMMap'], function (loader, OSMMap) {
     'use strict';
 
     return {
         loadMap: function (options, callback) {
             loader.loadjsfile('http://www.openlayers.org/api/OpenLayers.js', function () {
-                callback(new OSMap(options));
+                callback(new OSMMap(options));
             });
         }
     };

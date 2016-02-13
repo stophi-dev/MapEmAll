@@ -1,38 +1,40 @@
 {
-    "name": "MapEmAll",
-    "version": "0.1.0",
-    "keywords": [
-        "library",
-        "map",
-        "geo",
-        "googlemaps",
-        "bingmaps",
-        "openstreetmaps"
-    ],
-    "author": "Philip Stöhrer",
-    "contributors": [],
-    "dependencies": {},
-    "devDependencies": {
-        "chai": "^3.4.0",
-        "codecov.io": "^0.1.6",
-        "karma": "^0.13.15",
-        "karma-chai": "^0.1.0",
-        "karma-chai-sinon": "^0.1.5",
-        "karma-coverage": "*",
-        "karma-mocha": "^0.2.0",
-        "karma-phantomjs-launcher": "^0.2.1",
-        "karma-requirejs": "^0.2.2",
-        "karma-sinon": "^1.0.4",
-        "mocha": "^2.3.3",
-        "phantomjs": "*",
-        "requirejs": "^2.1.22",
-        "sinon": "^1.17.2",
-        "sinon-chai": "^2.8.0"
-    },
-    "scripts": {
-        "build": "r.js -o build/build.json optimize=none out=dist/MapEmAll.js && r.js -o  build/build.json out=dist/MapEmAll.min.js",
-        "test": "karma start",
-        "codecov.io": "cat ./results/coverage/lcov/lcov.info | ./node_modules/codecov.io/bin/codecov.io.js",
-        "update-helloworld": "cp dist/MapEmAll.js examples/HelloWorld/public_html"
-    }
+  "name": "MapEmAll",
+  "version": "0.1.0",
+  "keywords": [
+    "library",
+    "map",
+    "geo",
+    "googlemaps",
+    "bingmaps",
+    "openstreetmaps"
+  ],
+  "author": "Philip Stöhrer",
+  "contributors": [],
+  "dependencies": {},
+  "devDependencies": {
+    "chai": "^3.4.0",
+    "codecov.io": "^0.1.6",
+    "karma": "^0.13.15",
+    "karma-chai": "^0.1.0",
+    "karma-chai-sinon": "^0.1.5",
+    "karma-coverage": "*",
+    "karma-htmlfile-reporter": "^0.2.2",
+    "karma-mocha": "^0.2.0",
+    "karma-mocha-reporter": "^1.1.5",
+    "karma-phantomjs-launcher": "^0.2.1",
+    "karma-requirejs": "^0.2.2",
+    "karma-sinon": "^1.0.4",
+    "mocha": "^2.3.3",
+    "phantomjs": "*",
+    "requirejs": "^2.1.22",
+    "sinon": "^1.17.2",
+    "sinon-chai": "^2.8.0"
+  },
+  "scripts": {
+    "build": "r.js -o build/build.json optimize=none out=dist/MapEmAll.js && r.js -o  build/build.json out=dist/MapEmAll.min.js",
+    "test": "karma start",
+    "codecov.io": "cat ./results/coverage/lcov/lcov.info | ./node_modules/codecov.io/bin/codecov.io.js",
+    "update-helloworld": "cp dist/MapEmAll.js examples/HelloWorld/public_html"
+  }
 }

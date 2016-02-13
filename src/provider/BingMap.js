@@ -9,18 +9,20 @@
 
 /* global Microsoft */
 
-define(['JSLoader'], function (loader) {
+define(['JSLoader', 'provider/BingMarker'], function (loader, BingMarker) {
     'use strict';
 
     var BingMap = function BingMap(options) {
+        var self = this;
         var mapOptions = {
             credentials: options.credentials,
             center: new Microsoft.Maps.Location(options.center.latitude, options.center.longitude),
             zoom: 16
         };
-        var map = new Microsoft.Maps.Map(options.htmlContainer, mapOptions);
-        this.getArea = function () {
-            var bounds = map.getBounds();
+
+        self._nativeMap = new Microsoft.Maps.Map(options.htmlContainer, mapOptions);
+        self.getArea = function () {
+            var bounds = self._nativeMap.getBounds();
             return {
                 northEast: {
                     latitude: bounds.getNorth(),
@@ -33,33 +35,19 @@ define(['JSLoader'], function (loader) {
             };
         };
 
-        this.addMarker = function (geoPosition, title) {
-            var pinId = 'bing_pushpin_' + loader.makeId(20);
-
-            var location = new Microsoft.Maps.Location(geoPosition.latitude, geoPosition.longitude);
-            var pin = new Microsoft.Maps.Pushpin(location, {id: pinId});
-            map.entities.push(pin);
-
-            addTooltipToPin(pinId, title);
+        self.addMarker = function (geoPosition, title) {
+            return new BingMarker(self._nativeMap, geoPosition, title);
         };
-
-        function addTooltipToPin(pinId, tooltipText) {
-            var pinElement = document.getElementById(pinId);
-            var children = Array.prototype.slice.call(pinElement.childNodes);
-            children.forEach(function(child) {
-                child.setAttribute('title', tooltipText);
-            });
-        }
 
         this.addListener = function (event, listener) {
             if (event === 'boundsChanged') {
-                Microsoft.Maps.Events.addHandler(map, 'viewchangeend', listener);
+                Microsoft.Maps.Events.addHandler(self._nativeMap, 'viewchangeend', listener);
                 // TODO maybe needs to be debounced, like google API
             }
         };
 
         this.clearAllMarkers = function () {
-            map.entities.clear();
+            self._nativeMap.entities.clear();
         };
     };
 
