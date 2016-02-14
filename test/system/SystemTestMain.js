@@ -17,29 +17,45 @@ define(function () {
 
     require(['Main', 'jquery'], function (MapEmAll, $) {
 
-        var map = null;
-        reloadMap($('#selectMapProvider').val());
+        var maps = {};
 
-        $('#selectMapProvider').on('change', function () {
-            reloadMap(this.value);
+        $('.providerSelect').each(function () {
+            if (this.checked) {
+                loadMap(this.value);
+            }
+        });
+        
+        $('.providerSelect').on('change', function () {
+            if (this.checked) {
+                loadMap(this.value);
+            } else {
+                unloadMap(this.value);
+            }
         });
 
         $('#clearAllMarkers').on('click', function () {
-            map.clearAllMarkers();
+            Object.keys(maps).forEach(function (provider) {
+                maps[provider].clearAllMarkers();
+            });
         });
 
-        function reloadMap(provider) {
-            $('#map').remove();
-            $('body').append('<div id="map"></div>');
-            $('#showArea').text('');
+        function unloadMap(provider) {
+            var mapElement = $('#' + provider);
+            var parent = mapElement.parent();
+            parent.remove();
+            delete maps[provider];
+        }
 
-            MapEmAll.htmlContainerId = 'map';
+        function loadMap(provider) {
+            $('#allMaps').append('<div class="mapContainer"><div id="' + provider + '" class="map"></div></div>');
+
+            MapEmAll.htmlContainerId = provider;
             MapEmAll.provider = provider;
-            MapEmAll.loadMap(function (loadedMap) {
-                map = loadedMap;
+            MapEmAll.loadMap(function (map) {
+                maps[provider] = map;
                 var clickCount = 0;
                 map.addListener('boundsChanged', function () {
-                    var area  = map.getArea();
+                    var area = map.getArea();
                     $('#showNorthEast').text('Northeast: ' + geoLocationToString(area.northEast));
                     $('#showSouthWest').text(' Southwest: ' + geoLocationToString(area.southWest));
                 });
@@ -47,7 +63,7 @@ define(function () {
                 map.addListener('click', function (geoPosition) {
                     clickCount += 1;
                     var marker = map.addMarker(geoPosition, 'Marker ' + clickCount);
-                    marker.addListener('click', function(clickedMarker) {
+                    marker.addListener('click', function (clickedMarker) {
                         $('#showClickedMarker').text("Marker clicked: " + clickedMarker.getTitle());
                     });
                 });

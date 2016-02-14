@@ -15,25 +15,49 @@ See https://raw.githubusercontent.com/stophi-dev/MapEmAll/master/LICENSE for det
         <link rel="icon" href="favicon.png" type="image/png">
         <style type="text/css">
             html, body { height: 100%; margin: 0; padding: 0; }
-            #map {height: 100%}
+            #allMaps {
+                display: flex;
+                flex-direction: row;                
+                flex-wrap: nowrap;
+                justify-content: center;
+                align-items: stretch;
+                height: 100%;
+            }
+            .mapContainer {                
+                flex-grow: 1;
+                height: 100%;
+                margin-left: 5px;
+                margin-right: 5px;
+            }
+            .map {
+                height: 100%;  
+            }            
         </style>
     </head>
     <body>
-        <div>
-            <select id="selectMapProvider">
-                <option>bing</option>
-                <option>google</option>
-                <option selected>osm</option>
-            </select>
-            <button id="clearAllMarkers">Clear all markers</button>
-            <ul>
-                <li><span id="showNorthEast">NorthEast: Start position</span></li>
-                <li><span id="showSouthWest">SouthWest: Start position</span></li>
-                <li><span id="showClickedMarker">No marker was clicked</span></li>
-            </ul>
+        <label>
+            <input type="checkbox" name="bing" value="bing" class="providerSelect">
+            Bing Maps
+        </label>
+        <label>
+            <input type="checkbox" name="google" value="google" class="providerSelect">
+            Google Maps
+        </label>
+        <label>
+            <input type="checkbox" name="osm" value="osm" class="providerSelect" checked>
+            OpenStreetMap
+        </label>
 
-        </div>
-        <div id="map"></div>
+        <button id="clearAllMarkers">Clear all markers</button>            
+
+        <ul>                                        
+            <li><span id="showNorthEast">NorthEast: Start position</span></li>
+            <li><span id="showSouthWest">SouthWest: Start position</span></li>
+            <li><span id="showClickedMarker">No marker was clicked</span></li>
+        </ul>
+
+        <div id="allMaps"></div>
+
         <script src="lib/require.js" data-main="SystemTestMain"></script>
     </body>
 </html>
