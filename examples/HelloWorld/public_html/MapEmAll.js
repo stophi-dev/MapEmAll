@@ -463,9 +463,13 @@ define('Main',[], function () {
     };
 
     var result = {
-        center: {latitude: 48.163166, longitude: 11.58289},
+        center: {latitude: 0, longitude: 0},
+        zoomLevel: 5,
         provider: 'osm',
         htmlContainerId: 'MapEmAll',
+        osm: {
+            url:'http://www.openlayers.org/api/OpenLayers.js'
+        },
         getMapProviders: function () {
             return Object.keys(providers);
         }
@@ -482,8 +486,12 @@ define('Main',[], function () {
 
         var options = {
             center: result.center,
+            zoomLevel: result.zoomLevel,
             credentials: result.credentials,
-            htmlContainer: htmlContainer
+            htmlContainer: htmlContainer,
+            osm: {
+                url: result.osm.url
+            }
         };
         require([providers[result.provider]], function (mapProvider) {
             mapProvider.loadMap.apply(mapProvider, [options, onMapReadyCallback]);
@@ -525,9 +533,7 @@ define('JSLoader',[], function () {
         }
         fileref.setAttribute("src", filename);
 
-        if (typeof fileref !== "undefined") {
-            document.getElementsByTagName("head")[0].appendChild(fileref);
-        }
+        document.getElementsByTagName("head")[0].appendChild(fileref);
     }
 
     return {
@@ -551,23 +557,23 @@ define('JSLoader',[], function () {
 define('bing/BingMarker',['JSLoader'], function (loader) {
     'use strict';
 
-    var BingMarker = function (providerMap, geoPosition, title) {
+    var BingMarker = function (util, geoPosition, title) {
         var self = this;
         var pinId = 'bing_pushpin_' + loader.makeId(20);
 
         var location = toBingLocation(geoPosition);
-        self._providerMarker = new Microsoft.Maps.Pushpin(location, {id: pinId});
-        providerMap.entities.push(self._providerMarker);
+        self._nativeMarker = new Microsoft.Maps.Pushpin(location, {id: pinId});
+        util._nativeMap.entities.push(self._nativeMarker);
 
         addTooltipToPin(pinId, title);
 
 
         self.setGeoPosition = function (geoPosition) {
-            self._providerMarker.setLocation(toBingLocation(geoPosition));
+            self._nativeMarker.setLocation(toBingLocation(geoPosition));
         };
 
         self.getGeoPosition = function () {
-            return toGeoPosition(self._providerMarker.getLocation());
+            return toGeoPosition(self._nativeMarker.getLocation());
         };
 
         self.getTitle = function () {
@@ -577,20 +583,40 @@ define('bing/BingMarker',['JSLoader'], function (loader) {
         self.setTitle = function (title) {
             addTooltipToPin(pinId, title);
         };
+
+        self.addListener = function (eventName, listener) {
+            if (eventName === 'click') {
+                Microsoft.Maps.Events.addHandler(self._nativeMarker, 'click', function () {
+                    listener(self);
+                });
+            } else {
+                throw new Error('unknown event: ' + eventName);
+            }
+        };
+
+        self._triggerMouseClick = function () {
+            util.invokeClickEventOnPushpin(self._nativeMarker, getMarkerPixel());
+        };
+
+        function getMarkerPixel() {
+            return util._nativeMap.tryLocationToPixel(self._nativeMarker.getLocation());
+        }
     };
+
 
     function addTooltipToPin(pinId, tooltipText) {
         var pinElement = document.getElementById(pinId);
         var children = Array.prototype.slice.call(pinElement.childNodes);
         children.forEach(function (child) {
             child.setAttribute('title', tooltipText);
+            child.style.cursor = 'pointer';
         });
     }
 
     function getTooltipFromPin(pinId) {
         var pinElement = document.getElementById(pinId);
         var children = Array.prototype.slice.call(pinElement.childNodes);
-        for (var i=0; i < children.length; i++) {
+        for (var i = 0; i < children.length; i++) {
             var title = children[i].getAttribute('title');
             if (title) {
                 return title;
@@ -612,6 +638,80 @@ define('bing/BingMarker',['JSLoader'], function (loader) {
 
 
 
+/* 
+ * MapEmAll is licensed under the conditions of the MIT License (MIT)
+ *
+ * Copyright (c) 2015-2016 Philip Stöhrer
+ * All rights reserved.
+ *
+ * See https://raw.githubusercontent.com/stophi-dev/MapEmAll/master/LICENSE for details.
+ */
+
+/* global Microsoft */
+
+define('bing/BingMapUtil',[],function () {
+
+    var BingMapUtil = function (nativeBingMap) {
+        var self = this;
+        self._nativeMap = nativeBingMap;
+
+        self.toGeoPosition = function (bingLocation) {
+            return {
+                latitude: bingLocation.latitude,
+                longitude: bingLocation.longitude
+            };
+        };
+
+        self.pixelToGeoPosition = function (pixelX, pixelY) {
+            var point = new Microsoft.Maps.Point(pixelX, pixelY);
+            var bingLocation = self._nativeMap.tryPixelToLocation(point);
+            return self.toGeoPosition(bingLocation);
+        };
+
+        self.invokeClickEventOnMap = function (pixel) {
+            invokeClickEvent(self._nativeMap, 'map', pixel);
+        };
+        
+        self.invokeClickEventOnPushpin = function(pushpin, pixel) {
+            invokeClickEvent(pushpin, 'pushpin', pixel);
+        };
+
+        /**
+         * Invoke a mouse click event (used for testing)
+         * 
+         * @param {type} targetBingElement element that should be clicked
+         * @param {type} targetType The type of the object that fired the event. 
+         * Valid values include the following: ‘map’, ‘polygon’, ‘polyline’, or ‘pushpin’
+         * @param {type} pixel where the click event should be invoked
+         * @returns {undefined}
+         */
+        function invokeClickEvent(targetBingElement, targetType, pixel) {
+            Microsoft.Maps.Events.invoke(targetBingElement, 'click', {
+                eventName: 'click',
+                getX: function () {
+                    return pixel.x;
+                },
+                getY: function () {
+                    return pixel.y;
+                },
+                isPrimary: true,
+                isSecondary: false,
+                isTouchEvent: false,
+                mouseMoved: false,
+                originalEvent: null,
+                pageX: 0,
+                pageY: 0,
+                target: targetBingElement,
+                targetType: targetType,
+                wheelDelta: 0
+            });
+        }
+        ;
+    };
+
+    return BingMapUtil;
+});
+
 /*
  * MapEmAll is licensed under the conditions of the MIT License (MIT)
  *
@@ -623,18 +723,23 @@ define('bing/BingMarker',['JSLoader'], function (loader) {
 
 /* global Microsoft */
 
-define('bing/BingMap',['JSLoader', 'bing/BingMarker'], function (loader, BingMarker) {
+define('bing/BingMap',['./BingMarker', './BingMapUtil'], function (BingMarker, BingMapUtil) {
     'use strict';
 
     var BingMap = function BingMap(options) {
         var self = this;
+        var markers = [];
+
         var mapOptions = {
             credentials: options.credentials,
             center: new Microsoft.Maps.Location(options.center.latitude, options.center.longitude),
-            zoom: 16
+            zoom: options.zoomLevel
         };
 
         self._nativeMap = new Microsoft.Maps.Map(options.htmlContainer, mapOptions);
+        
+        var util = new BingMapUtil(self._nativeMap);
+        
         self.getArea = function () {
             var bounds = self._nativeMap.getBounds();
             return {
@@ -649,24 +754,17 @@ define('bing/BingMap',['JSLoader', 'bing/BingMarker'], function (loader, BingMar
             };
         };
 
-        self.addMarker = function (geoPosition, title) {
-            return new BingMarker(self._nativeMap, geoPosition, title);
-        };
-
         this.addListener = function (event, listener) {
             if (event === 'boundsChanged') {
                 var wrappedListener = function () {
                     listener();
                 };
                 Microsoft.Maps.Events.addHandler(self._nativeMap, 'viewchangeend', wrappedListener);
-                
+
             } else if (event === 'click') {
                 var wrappedListener = function (event) {
-                    if (event.targetType === "map") {
-                        var point = new Microsoft.Maps.Point(event.getX(), event.getY());
-                        var bingLocation = event.target.tryPixelToLocation(point);
-                        var geoPosition = {latitude: bingLocation.latitude, longitude: bingLocation.longitude};                        
-                        listener(geoPosition);
+                    if (event.targetType === "map") {                        
+                        listener(util.pixelToGeoPosition(event.getX(), event.getY()));
                     }
                 };
                 Microsoft.Maps.Events.addHandler(self._nativeMap, 'click', wrappedListener);
@@ -675,30 +773,24 @@ define('bing/BingMap',['JSLoader', 'bing/BingMarker'], function (loader, BingMar
             }
         };
 
-        this.clearAllMarkers = function () {
-            self._nativeMap.entities.clear();
+        self.getMarkers = function() {
+            return markers.slice();
         };
 
-        this._triggerMouseClick = function (geoPosition) {
-            Microsoft.Maps.Events.invoke(self._nativeMap, 'click', {
-                eventName: 'click',
-                getX: function () {                                            
-                    return self._nativeMap.tryLocationToPixel(geoPosition).x;                                        
-                },
-                getY: function () {
-                    return self._nativeMap.tryLocationToPixel(geoPosition).y;
-                },
-                isPrimary: true,
-                isSecondary: false,
-                isTouchEvent: false,
-                mouseMoved: false,
-                originalEvent: null,
-                pageX: 0,
-                pageY: 0,
-                target: self._nativeMap,
-                targetType: 'map',
-                wheelDelta: 0
-            });
+        self.addMarker = function (geoPosition, title) {
+            var result = new BingMarker(util, geoPosition, title);
+            markers.push(result);
+            return result;
+        };
+
+        self.clearAllMarkers = function () {
+            self._nativeMap.entities.clear();
+            markers = [];
+        };
+
+        self._triggerMouseClick = function (geoPosition) {
+            var pixel = self._nativeMap.tryLocationToPixel(geoPosition);
+            util.invokeClickEventOnMap(pixel);            
         };
     };
 
@@ -739,7 +831,7 @@ define('bing/Bing',['JSLoader', 'bing/BingMap'], function (loader, BingMap) {
                 delete window[callbackName];
                 callback(new BingMap(options));
             };
-            loader.loadjsfile('http://dev.virtualearth.net/mapcontrol/mapcontrol.ashx?v=7.0&onscriptload=' + callbackName);
+            loader.loadjsfile('https://ecn.dev.virtualearth.net/mapcontrol/mapcontrol.ashx?v=7.0&s=1&onscriptload=' + callbackName);
         }
     };
 });
@@ -760,30 +852,46 @@ define('google/GoogleMarker',[],function () {
     function GoogleMarker(providerMap, geoPosition, title) {
         var self = this;
 
-        this._providerMarker = new google.maps.Marker({
+        self._nativeMarker = new google.maps.Marker({
             position: {lat: geoPosition.latitude, lng: geoPosition.longitude},
             map: providerMap,
             title: title
         });
 
         self.setGeoPosition = function (geoPosition) {
-            self._providerMarker.setPosition({
+            self._nativeMarker.setPosition({
                 lat: geoPosition.latitude,
                 lng: geoPosition.longitude});
         };
 
         self.getGeoPosition = function () {
             return {
-                latitude: self._providerMarker.position.lat(),
-                longitude: self._providerMarker.position.lng()};
+                latitude: self._nativeMarker.position.lat(),
+                longitude: self._nativeMarker.position.lng()};
         };
 
         self.getTitle = function () {
-            return self._providerMarker.getTitle();
+            return self._nativeMarker.getTitle();
         };
 
         self.setTitle = function (title) {
-            self._providerMarker.setTitle(title);
+            self._nativeMarker.setTitle(title);
+        };
+
+        self.addListener = function (eventName, listener) {
+            if (eventName === 'click') {
+                self._nativeMarker.addListener('click', function () {
+                    listener(self);
+                });
+            } else {
+                throw new Error('unknown event: ' + eventName);
+            }
+        };
+
+        self._triggerMouseClick = function () {
+            google.maps.event.trigger(self._nativeMarker, 'click', {
+                latLng: self._nativeMarker.position
+            });
         };
     }
 
@@ -805,7 +913,7 @@ define('google/GoogleMarker',[],function () {
 
 /* global google */
 
-define('google/GoogleMap',['google/GoogleMarker'], function (GoogleMarker) {
+define('google/GoogleMap',['./GoogleMarker'], function (GoogleMarker) {
     'use strict';
 
     var GoogleMap = function (options) {
@@ -814,7 +922,7 @@ define('google/GoogleMap',['google/GoogleMarker'], function (GoogleMarker) {
 
         this._nativeMap = new google.maps.Map(options.htmlContainer, {
             center: {lat: options.center.latitude, lng: options.center.longitude},
-            zoom: 16
+            zoom: options.zoomLevel
         });
 
         this.getArea = function () {
@@ -862,13 +970,17 @@ define('google/GoogleMap',['google/GoogleMarker'], function (GoogleMarker) {
             return newMarker;
         };
 
+        this.getMarkers = function () {
+            return markers.slice();
+        };
+
         this.clearAllMarkers = function () {
             for (var i = 0; i < markers.length; i++) {
-                markers[i]._providerMarker.setMap(null);
+                markers[i]._nativeMarker.setMap(null);
             }
             markers = [];
         };
-        
+
         this._triggerMouseClick = function (geoPosition) {
             google.maps.event.trigger(self._nativeMap, 'click', {
                 latLng: new google.maps.LatLng(geoPosition.latitude, geoPosition.longitude)
@@ -892,7 +1004,7 @@ define('google/GoogleMap',['google/GoogleMarker'], function (GoogleMarker) {
 
 /* global google */
 
-define('google/Google',['JSLoader', 'google/GoogleMap'], function (loader, GoogleMap) {
+define('google/Google',['JSLoader', './GoogleMap'], function (loader, GoogleMap) {
     'use strict';
 
     return {
@@ -925,6 +1037,8 @@ define('google/Google',['JSLoader', 'google/GoogleMap'], function (loader, Googl
 /* global OpenLayers */
 
 define('osm/OSMConverter',[],function () {
+    'use strict';
+    
     function OSMConverter(osmMap) {
         var self = this;
         self.osmMap = osmMap;
@@ -968,9 +1082,7 @@ define('osm/OSMConverter',[],function () {
 
 define('osm/OSMMarker',[],function () {
     'use strict';
-        
-    // TODO use OpenLayers Vector instead of Marker. This will be more flexible
-    
+
     function OSMMarker(osmConverter, nativeMarkerLayer, geoPosition, initialTitle) {
         var self = this;
         var markerTitle = initialTitle;
@@ -978,10 +1090,10 @@ define('osm/OSMMarker',[],function () {
         self._nativeMarker = new OpenLayers.Marker(osmConverter.toOsmLonLat(geoPosition));
         nativeMarkerLayer.addMarker(self._nativeMarker);
 
-        self.setGeoPosition = function (geoPosition) {           
+        self.setGeoPosition = function (geoPosition) {
             nativeMarkerLayer.removeMarker(self._nativeMarker);
             self._nativeMarker.lonlat = osmConverter.toOsmLonLat(geoPosition);
-            nativeMarkerLayer.addMarker(self._nativeMarker);  
+            nativeMarkerLayer.addMarker(self._nativeMarker);
         };
 
         self.getGeoPosition = function () {
@@ -991,14 +1103,44 @@ define('osm/OSMMarker',[],function () {
         };
 
         self.getTitle = function () {
-            // TODO implement title to be a tooltip of marker 
-            // title currently has no real effet
-            return markerTitle;
+            var children = getImageElements();
+            for (var i = 0; i < children.length; i++) {
+                var title = children[i].getAttribute('title');
+                if (title) {
+                    return title;
+                }
+            }
+            return '';
         };
 
         self.setTitle = function (title) {
-            markerTitle = title;
+            getImageElements().forEach(function (child) {
+                child.setAttribute('title', title);
+                child.style.cursor = 'pointer';
+            });
         };
+
+        function getImageElements() {
+            var imageDiv = self._nativeMarker.icon.imageDiv;
+            return Array.prototype.slice.call(imageDiv.childNodes);
+        }
+
+        self.addListener = function (eventName, listener) {
+            if (eventName === 'click') {
+                self._nativeMarker.events.register('click', null, function () {
+                    listener(self);
+                });
+            } else {
+                throw new Error('unknown event: ' + eventName);
+            }
+        };
+
+        self._triggerMouseClick = function () {            
+            var pixel = osmConverter.osmMap.getPixelFromLonLat(self._nativeMarker.lonlat);
+            self._nativeMarker.events.triggerEvent('click', {xy: pixel});
+        };
+
+        self.setTitle(initialTitle);
     }
 
     return OSMMarker;
@@ -1018,14 +1160,15 @@ define('osm/OSMMarker',[],function () {
 define('osm/OSMMap',['osm/OSMConverter', 'osm/OSMMarker'], function (OSMConverter, OSMMarker) {
     'use strict';
 
-    var OSMap = function (options) {
+    var OSMMap = function (options) {
         var self = this;
 
         self._nativeMap = new OpenLayers.Map(options.htmlContainer.getAttribute('id'));
         self._nativeMap.displayProjection = new OpenLayers.Projection("EPSG:4326");
         self._nativeMap.addLayer(new OpenLayers.Layer.OSM());
 
-        var zoom = 16;
+        var zoom = options.zoomLevel;
+        var markers = [];
 
         var nativeMarkerLayer = new OpenLayers.Layer.Markers("Markers");
         self._nativeMap.addLayer(nativeMarkerLayer);
@@ -1099,7 +1242,12 @@ define('osm/OSMMap',['osm/OSMConverter', 'osm/OSMMarker'], function (OSMConverte
 
         this.addMarker = function (geoPosition, title) {
             var marker = new OSMMarker(osmConverter, nativeMarkerLayer, geoPosition, title);
+            markers.push(marker);
             return marker;
+        };
+
+        this.getMarkers = function () {
+            return markers.slice();
         };
 
         this.clearAllMarkers = function () {
@@ -1108,17 +1256,17 @@ define('osm/OSMMap',['osm/OSMConverter', 'osm/OSMMarker'], function (OSMConverte
             nativeMarkerLayer.destroy();
             nativeMarkerLayer = new OpenLayers.Layer.Markers("Markers");
             self._nativeMap.addLayer(nativeMarkerLayer);
-
+            markers = [];
         };
-        
-        this._triggerMouseClick = function(geoPosition) {
+
+        this._triggerMouseClick = function (geoPosition) {
             var lonLat = osmConverter.toOsmLonLat(geoPosition);
             var pixel = self._nativeMap.getPixelFromLonLat(lonLat);
             self._nativeMap.events.triggerEvent('click', {xy: pixel});
         };
     };
 
-    return OSMap;
+    return OSMMap;
 });
 
 
@@ -1137,7 +1285,7 @@ define('osm/OSM',['JSLoader', 'osm/OSMMap'], function (loader, OSMMap) {
 
     return {
         loadMap: function (options, callback) {
-            loader.loadjsfile('http://www.openlayers.org/api/OpenLayers.js', function () {
+            loader.loadjsfile(options.osm.url, function () {
                 callback(new OSMMap(options));
             });
         }
