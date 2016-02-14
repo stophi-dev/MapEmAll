@@ -466,6 +466,12 @@ define('Main',[], function () {
         zoomLevel: 5,
         provider: 'osm',
         htmlContainerId: 'MapEmAll',
+        bing: {
+            credentials: null
+        },
+        google: {
+            credentials: null
+        },
         osm: {
             url: 'http://www.openlayers.org/api/OpenLayers.js'
         },
@@ -486,8 +492,13 @@ define('Main',[], function () {
         var options = {
             center: result.center,
             zoomLevel: result.zoomLevel,
-            credentials: result.credentials,
             htmlContainer: htmlContainer,
+            bing: {
+                credentials: result.credentials
+            },
+            google: {
+                credentials: result.credentials
+            },
             osm: {
                 url: result.osm.url
             }
@@ -635,7 +646,7 @@ define('bing/BingMarker',['JSLoader'], function (loader) {
 
 
 
-/* 
+/*
  * MapEmAll is licensed under the conditions of the MIT License (MIT)
  *
  * Copyright (c) 2015-2016 Philip Stöhrer
@@ -726,7 +737,7 @@ define('bing/BingMap',['./BingMarker', './BingMapUtil'], function (BingMarker, B
         var markers = [];
 
         var mapOptions = {
-            credentials: options.credentials,
+            credentials: options.bing.credentials,
             center: new Microsoft.Maps.Location(options.center.latitude, options.center.longitude),
             zoom: options.zoomLevel
         };
@@ -1010,13 +1021,13 @@ define('google/Google',['JSLoader', './GoogleMap'], function (loader, GoogleMap)
                     callback(googleMap);
                 });
             };
-            var keyStr = options.credentials ? 'key=' + options.credentials + '&' : '';
+            var keyStr = options.google.credentials ? 'key=' + options.google.credentials + '&' : '';
             loader.loadjsfile('https://maps.googleapis.com/maps/api/js?' + keyStr + 'callback=' + callbackName);
         }
     };
 
 });
-/* 
+/*
  * MapEmAll is licensed under the conditions of the MIT License (MIT)
  *
  * Copyright (c) 2015-2016 Philip Stöhrer
@@ -1060,7 +1071,7 @@ define('osm/OSMConverter',[],function () {
     return OSMConverter;
 });
 
-/* 
+/*
  * MapEmAll is licensed under the conditions of the MIT License (MIT)
  *
  * Copyright (c) 2015-2016 Philip Stöhrer

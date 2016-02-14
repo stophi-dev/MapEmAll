@@ -16,7 +16,7 @@ define(['./BingMarker', './BingMapUtil'], function (BingMarker, BingMapUtil) {
         var markers = [];
 
         var mapOptions = {
-            credentials: options.credentials,
+            credentials: options.bing.credentials,
             center: new Microsoft.Maps.Location(options.center.latitude, options.center.longitude),
             zoom: options.zoomLevel
         };

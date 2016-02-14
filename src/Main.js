@@ -19,6 +19,12 @@ define([], function () {
         zoomLevel: 5,
         provider: 'osm',
         htmlContainerId: 'MapEmAll',
+        bing: {
+            credentials: null
+        },
+        google: {
+            credentials: null
+        },
         osm: {
             url: 'http://www.openlayers.org/api/OpenLayers.js'
         },
@@ -39,8 +45,13 @@ define([], function () {
         var options = {
             center: result.center,
             zoomLevel: result.zoomLevel,
-            credentials: result.credentials,
             htmlContainer: htmlContainer,
+            bing: {
+                credentials: result.credentials
+            },
+            google: {
+                credentials: result.credentials
+            },
             osm: {
                 url: result.osm.url
             }

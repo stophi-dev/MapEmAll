@@ -23,7 +23,7 @@ define(['JSLoader', './GoogleMap'], function (loader, GoogleMap) {
                     callback(googleMap);
                 });
             };
-            var keyStr = options.credentials ? 'key=' + options.credentials + '&' : '';
+            var keyStr = options.google.credentials ? 'key=' + options.google.credentials + '&' : '';
             loader.loadjsfile('https://maps.googleapis.com/maps/api/js?' + keyStr + 'callback=' + callbackName);
         }
     };
