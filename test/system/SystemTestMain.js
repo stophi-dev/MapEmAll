@@ -16,7 +16,9 @@ define(function () {
     });
 
     require(['Main', 'jquery'], function (MapEmAll, $) {
-
+        MapEmAll.center = {"latitude":48.137013636218676,"longitude":11.576739173564974};
+        MapEmAll.zoomLevel = 15;
+    
         var maps = {};
 
         $('.providerSelect').each(function () {

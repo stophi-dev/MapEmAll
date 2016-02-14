@@ -19,7 +19,7 @@ define(['./BingMarker', './BingMapUtil'], function (BingMarker, BingMapUtil) {
         var mapOptions = {
             credentials: options.credentials,
             center: new Microsoft.Maps.Location(options.center.latitude, options.center.longitude),
-            zoom: 16
+            zoom: options.zoomLevel
         };
 
         self._nativeMap = new Microsoft.Maps.Map(options.htmlContainer, mapOptions);

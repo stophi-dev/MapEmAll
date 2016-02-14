@@ -19,7 +19,7 @@ define(['osm/OSMConverter', 'osm/OSMMarker'], function (OSMConverter, OSMMarker)
         self._nativeMap.displayProjection = new OpenLayers.Projection("EPSG:4326");
         self._nativeMap.addLayer(new OpenLayers.Layer.OSM());
 
-        var zoom = 16;
+        var zoom = options.zoomLevel;
         var markers = [];
 
         var nativeMarkerLayer = new OpenLayers.Layer.Markers("Markers");

@@ -16,7 +16,8 @@ define([], function () {
     };
 
     var result = {
-        center: {latitude: 48.163166, longitude: 11.58289},
+        center: {latitude: 0, longitude: 0},
+        zoomLevel: 5,
         provider: 'osm',
         htmlContainerId: 'MapEmAll',
         getMapProviders: function () {
@@ -35,6 +36,7 @@ define([], function () {
 
         var options = {
             center: result.center,
+            zoomLevel: result.zoomLevel,
             credentials: result.credentials,
             htmlContainer: htmlContainer
         };

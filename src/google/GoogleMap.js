@@ -18,7 +18,7 @@ define(['./GoogleMarker'], function (GoogleMarker) {
 
         this._nativeMap = new google.maps.Map(options.htmlContainer, {
             center: {lat: options.center.latitude, lng: options.center.longitude},
-            zoom: 16
+            zoom: options.zoomLevel
         });
 
         this.getArea = function () {
