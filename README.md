@@ -1,6 +1,7 @@
-# MapEmAll 
+# MapEmAll ![logo](https://raw.githubusercontent.com/stophi-dev/MapEmAll/master/imgsrc/MapEmAll.png "MapEmAll")
+
 [![Build Status](https://api.travis-ci.org/stophi-dev/MapEmAll.svg?branch=master)](https://travis-ci.org/stophi-dev/MapEmAll)
-[![Coverage](https://codecov.io/github/stophi-dev/MapEmAll/coverage.svg?branch=master)](https://codecov.io/github/stophi-dev/MapEmAll?branch=master)
+[![Coverage](https://codecov.io/github/stophi-dev/MapEmAll/coverage.svg?branch=master)](https://codecov.io/github/stophi-dev/MapEmAll?branch=master) 
 
 One API for multiple map providers. 
 Currently supported: 
