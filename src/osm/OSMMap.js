@@ -12,7 +12,7 @@
 define(['osm/OSMConverter', 'osm/OSMMarker'], function (OSMConverter, OSMMarker) {
     'use strict';
 
-    var OSMap = function (options) {
+    var OSMMap = function (options) {
         var self = this;
 
         self._nativeMap = new OpenLayers.Map(options.htmlContainer.getAttribute('id'));
@@ -118,7 +118,7 @@ define(['osm/OSMConverter', 'osm/OSMMarker'], function (OSMConverter, OSMMarker)
         };
     };
 
-    return OSMap;
+    return OSMMap;
 });
 
 
