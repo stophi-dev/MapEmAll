@@ -449,7 +449,6 @@ define("../build/almond", function(){});
  * MapEmAll is licensed under the conditions of the MIT License (MIT)
  *
  * Copyright (c) 2015-2016 Philip Stöhrer
- * All rights reserved.
  *
  * See https://raw.githubusercontent.com/stophi-dev/MapEmAll/master/LICENSE for details.
  */
@@ -468,7 +467,7 @@ define('Main',[], function () {
         provider: 'osm',
         htmlContainerId: 'MapEmAll',
         osm: {
-            url:'http://www.openlayers.org/api/OpenLayers.js'
+            url: 'http://www.openlayers.org/api/OpenLayers.js'
         },
         getMapProviders: function () {
             return Object.keys(providers);
@@ -504,7 +503,6 @@ define('Main',[], function () {
  * MapEmAll is licensed under the conditions of the MIT License (MIT)
  *
  * Copyright (c) 2015-2016 Philip Stöhrer
- * All rights reserved.
  *
  * See https://raw.githubusercontent.com/stophi-dev/MapEmAll/master/LICENSE for details.
  */
@@ -547,7 +545,6 @@ define('JSLoader',[], function () {
  * MapEmAll is licensed under the conditions of the MIT License (MIT)
  *
  * Copyright (c) 2015-2016 Philip Stöhrer
- * All rights reserved.
  *
  * See https://raw.githubusercontent.com/stophi-dev/MapEmAll/master/LICENSE for details.
  */
@@ -638,11 +635,10 @@ define('bing/BingMarker',['JSLoader'], function (loader) {
 
 
 
-/* 
+/*
  * MapEmAll is licensed under the conditions of the MIT License (MIT)
  *
  * Copyright (c) 2015-2016 Philip Stöhrer
- * All rights reserved.
  *
  * See https://raw.githubusercontent.com/stophi-dev/MapEmAll/master/LICENSE for details.
  */
@@ -671,8 +667,8 @@ define('bing/BingMapUtil',[],function () {
         self.invokeClickEventOnMap = function (pixel) {
             invokeClickEvent(self._nativeMap, 'map', pixel);
         };
-        
-        self.invokeClickEventOnPushpin = function(pushpin, pixel) {
+
+        self.invokeClickEventOnPushpin = function (pushpin, pixel) {
             invokeClickEvent(pushpin, 'pushpin', pixel);
         };
 
@@ -716,7 +712,6 @@ define('bing/BingMapUtil',[],function () {
  * MapEmAll is licensed under the conditions of the MIT License (MIT)
  *
  * Copyright (c) 2015-2016 Philip Stöhrer
- * All rights reserved.
  *
  * See https://raw.githubusercontent.com/stophi-dev/MapEmAll/master/LICENSE for details.
  */
@@ -737,9 +732,9 @@ define('bing/BingMap',['./BingMarker', './BingMapUtil'], function (BingMarker, B
         };
 
         self._nativeMap = new Microsoft.Maps.Map(options.htmlContainer, mapOptions);
-        
+
         var util = new BingMapUtil(self._nativeMap);
-        
+
         self.getArea = function () {
             var bounds = self._nativeMap.getBounds();
             return {
@@ -763,7 +758,7 @@ define('bing/BingMap',['./BingMarker', './BingMapUtil'], function (BingMarker, B
 
             } else if (event === 'click') {
                 var wrappedListener = function (event) {
-                    if (event.targetType === "map") {                        
+                    if (event.targetType === "map") {
                         listener(util.pixelToGeoPosition(event.getX(), event.getY()));
                     }
                 };
@@ -773,7 +768,7 @@ define('bing/BingMap',['./BingMarker', './BingMapUtil'], function (BingMarker, B
             }
         };
 
-        self.getMarkers = function() {
+        self.getMarkers = function () {
             return markers.slice();
         };
 
@@ -790,7 +785,7 @@ define('bing/BingMap',['./BingMarker', './BingMapUtil'], function (BingMarker, B
 
         self._triggerMouseClick = function (geoPosition) {
             var pixel = self._nativeMap.tryLocationToPixel(geoPosition);
-            util.invokeClickEventOnMap(pixel);            
+            util.invokeClickEventOnMap(pixel);
         };
     };
 
@@ -803,7 +798,6 @@ define('bing/BingMap',['./BingMarker', './BingMapUtil'], function (BingMarker, B
  * MapEmAll is licensed under the conditions of the MIT License (MIT)
  *
  * Copyright (c) 2015-2016 Philip Stöhrer
- * All rights reserved.
  *
  * See https://raw.githubusercontent.com/stophi-dev/MapEmAll/master/LICENSE for details.
  */
@@ -839,7 +833,6 @@ define('bing/Bing',['JSLoader', 'bing/BingMap'], function (loader, BingMap) {
  * MapEmAll is licensed under the conditions of the MIT License (MIT)
  *
  * Copyright (c) 2015-2016 Philip Stöhrer
- * All rights reserved.
  *
  * See https://raw.githubusercontent.com/stophi-dev/MapEmAll/master/LICENSE for details.
  */
@@ -906,7 +899,6 @@ define('google/GoogleMarker',[],function () {
  * MapEmAll is licensed under the conditions of the MIT License (MIT)
  *
  * Copyright (c) 2015-2016 Philip Stöhrer
- * All rights reserved.
  *
  * See https://raw.githubusercontent.com/stophi-dev/MapEmAll/master/LICENSE for details.
  */
@@ -997,7 +989,6 @@ define('google/GoogleMap',['./GoogleMarker'], function (GoogleMarker) {
  * MapEmAll is licensed under the conditions of the MIT License (MIT)
  *
  * Copyright (c) 2015-2016 Philip Stöhrer
- * All rights reserved.
  *
  * See https://raw.githubusercontent.com/stophi-dev/MapEmAll/master/LICENSE for details.
  */
@@ -1025,11 +1016,10 @@ define('google/Google',['JSLoader', './GoogleMap'], function (loader, GoogleMap)
     };
 
 });
-/* 
+/*
  * MapEmAll is licensed under the conditions of the MIT License (MIT)
  *
  * Copyright (c) 2015-2016 Philip Stöhrer
- * All rights reserved.
  *
  * See https://raw.githubusercontent.com/stophi-dev/MapEmAll/master/LICENSE for details.
  */
@@ -1038,7 +1028,7 @@ define('google/Google',['JSLoader', './GoogleMap'], function (loader, GoogleMap)
 
 define('osm/OSMConverter',[],function () {
     'use strict';
-    
+
     function OSMConverter(osmMap) {
         var self = this;
         self.osmMap = osmMap;
@@ -1054,7 +1044,7 @@ define('osm/OSMConverter',[],function () {
         self.toGeoPosition = function (osmLonLat) {
             // Need new lonlat so that original osmLonLat is not affected by transformation
             var lonLatClone = new OpenLayers.LonLat(osmLonLat.lon, osmLonLat.lat);
-            
+
             var position = lonLatClone.transform(
                     osmMap.getProjectionObject(),
                     osmMap.displayProjection);
@@ -1064,16 +1054,16 @@ define('osm/OSMConverter',[],function () {
             };
 
         };
-    };
+    }
+    ;
 
     return OSMConverter;
 });
 
-/* 
+/*
  * MapEmAll is licensed under the conditions of the MIT License (MIT)
  *
  * Copyright (c) 2015-2016 Philip Stöhrer
- * All rights reserved.
  *
  * See https://raw.githubusercontent.com/stophi-dev/MapEmAll/master/LICENSE for details.
  */
@@ -1135,7 +1125,7 @@ define('osm/OSMMarker',[],function () {
             }
         };
 
-        self._triggerMouseClick = function () {            
+        self._triggerMouseClick = function () {
             var pixel = osmConverter.osmMap.getPixelFromLonLat(self._nativeMarker.lonlat);
             self._nativeMarker.events.triggerEvent('click', {xy: pixel});
         };
@@ -1150,7 +1140,6 @@ define('osm/OSMMarker',[],function () {
  * MapEmAll is licensed under the conditions of the MIT License (MIT)
  *
  * Copyright (c) 2015-2016 Philip Stöhrer
- * All rights reserved.
  *
  * See https://raw.githubusercontent.com/stophi-dev/MapEmAll/master/LICENSE for details.
  */
@@ -1275,7 +1264,6 @@ define('osm/OSMMap',['osm/OSMConverter', 'osm/OSMMarker'], function (OSMConverte
  * MapEmAll is licensed under the conditions of the MIT License (MIT)
  *
  * Copyright (c) 2015-2016 Philip Stöhrer
- * All rights reserved.
  *
  * See https://raw.githubusercontent.com/stophi-dev/MapEmAll/master/LICENSE for details.
  */
