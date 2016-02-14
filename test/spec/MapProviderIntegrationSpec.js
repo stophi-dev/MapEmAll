@@ -77,9 +77,9 @@ define(['Main'], function (MapEmAll) {
                 done();
             });
 
-            it('add a marker to the map', function (done) {                
+            it('add a marker to the map', function (done) {
                 var marker = map.addMarker(center, 'marker_title');
-                
+
                 expect(marker).to.be.an('object');
                 expect(marker.getGeoPosition).to.be.a('function');
                 expect(marker.setGeoPosition).to.be.a('function');
@@ -94,9 +94,9 @@ define(['Main'], function (MapEmAll) {
             });
 
             it('clear all markers from the map', function (done) {
-                map.addMarker(center, 'marker');                
+                map.addMarker(center, 'marker');
                 map.clearAllMarkers();
-                
+
                 expect(map.getMarkers().length).to.equal(0);
                 done();
             });
@@ -116,6 +116,27 @@ define(['Main'], function (MapEmAll) {
                 marker.setTitle('new title');
 
                 expect(marker.getTitle()).to.equal('new title');
+                done();
+            });
+
+            it('add a click listener to the marker', function (done) {
+
+                var clickListener = function (clickedMarker) {
+                    expect(clickedMarker).to.equal(marker);
+                    done();
+                };
+
+                var marker = map.addMarker(center, 'marker');
+                marker.addListener('click', clickListener);
+                marker._triggerMouseClick(center);
+            });
+
+            it('add an invalid listener to the marker throws an exception', function (done) {
+                var addInvalidListener = function () {
+                    var marker = map.addMarker(center, 'marker');
+                    marker.addListener('asdf', function () {});
+                };
+                expect(addInvalidListener).to.throw('unknown event: ' + 'asdf');
                 done();
             });
         });

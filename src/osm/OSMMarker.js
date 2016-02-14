@@ -11,9 +11,7 @@
 
 define(function () {
     'use strict';
-        
-    // TODO use OpenLayers Vector instead of Marker. This will be more flexible
-    
+
     function OSMMarker(osmConverter, nativeMarkerLayer, geoPosition, initialTitle) {
         var self = this;
         var markerTitle = initialTitle;
@@ -21,10 +19,10 @@ define(function () {
         self._nativeMarker = new OpenLayers.Marker(osmConverter.toOsmLonLat(geoPosition));
         nativeMarkerLayer.addMarker(self._nativeMarker);
 
-        self.setGeoPosition = function (geoPosition) {           
+        self.setGeoPosition = function (geoPosition) {
             nativeMarkerLayer.removeMarker(self._nativeMarker);
             self._nativeMarker.lonlat = osmConverter.toOsmLonLat(geoPosition);
-            nativeMarkerLayer.addMarker(self._nativeMarker);  
+            nativeMarkerLayer.addMarker(self._nativeMarker);
         };
 
         self.getGeoPosition = function () {
@@ -34,14 +32,44 @@ define(function () {
         };
 
         self.getTitle = function () {
-            // TODO implement title to be a tooltip of marker 
-            // title currently has no real effet
-            return markerTitle;
+            var children = getImageElements();
+            for (var i = 0; i < children.length; i++) {
+                var title = children[i].getAttribute('title');
+                if (title) {
+                    return title;
+                }
+            }
+            return '';
         };
 
         self.setTitle = function (title) {
-            markerTitle = title;
+            getImageElements().forEach(function (child) {
+                child.setAttribute('title', title);
+                child.style.cursor = 'pointer';
+            });
         };
+
+        function getImageElements() {
+            var imageDiv = self._nativeMarker.icon.imageDiv;
+            return Array.prototype.slice.call(imageDiv.childNodes);
+        }
+
+        self.addListener = function (eventName, listener) {
+            if (eventName === 'click') {
+                self._nativeMarker.events.register('click', null, function () {
+                    listener(self);
+                });
+            } else {
+                throw new Error('unknown event: ' + eventName);
+            }
+        };
+
+        self._triggerMouseClick = function () {            
+            var pixel = osmConverter.osmMap.getPixelFromLonLat(self._nativeMarker.lonlat);
+            self._nativeMarker.events.triggerEvent('click', {xy: pixel});
+        };
+
+        self.setTitle(initialTitle);
     }
 
     return OSMMarker;

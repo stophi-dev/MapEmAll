@@ -9,7 +9,7 @@
 
 /* global Microsoft */
 
-define(['JSLoader', 'bing/BingMarker'], function (loader, BingMarker) {
+define(['./BingMarker', './BingMapUtil'], function (BingMarker, BingMapUtil) {
     'use strict';
 
     var BingMap = function BingMap(options) {
@@ -23,6 +23,9 @@ define(['JSLoader', 'bing/BingMarker'], function (loader, BingMarker) {
         };
 
         self._nativeMap = new Microsoft.Maps.Map(options.htmlContainer, mapOptions);
+        
+        var util = new BingMapUtil(self._nativeMap);
+        
         self.getArea = function () {
             var bounds = self._nativeMap.getBounds();
             return {
@@ -46,11 +49,8 @@ define(['JSLoader', 'bing/BingMarker'], function (loader, BingMarker) {
 
             } else if (event === 'click') {
                 var wrappedListener = function (event) {
-                    if (event.targetType === "map") {
-                        var point = new Microsoft.Maps.Point(event.getX(), event.getY());
-                        var bingLocation = event.target.tryPixelToLocation(point);
-                        var geoPosition = {latitude: bingLocation.latitude, longitude: bingLocation.longitude};
-                        listener(geoPosition);
+                    if (event.targetType === "map") {                        
+                        listener(util.pixelToGeoPosition(event.getX(), event.getY()));
                     }
                 };
                 Microsoft.Maps.Events.addHandler(self._nativeMap, 'click', wrappedListener);
@@ -64,36 +64,19 @@ define(['JSLoader', 'bing/BingMarker'], function (loader, BingMarker) {
         };
 
         self.addMarker = function (geoPosition, title) {
-            var result = new BingMarker(self._nativeMap, geoPosition, title);
+            var result = new BingMarker(util, geoPosition, title);
             markers.push(result);
             return result;
         };
 
-        this.clearAllMarkers = function () {
+        self.clearAllMarkers = function () {
             self._nativeMap.entities.clear();
             markers = [];
         };
 
-        this._triggerMouseClick = function (geoPosition) {
-            Microsoft.Maps.Events.invoke(self._nativeMap, 'click', {
-                eventName: 'click',
-                getX: function () {
-                    return self._nativeMap.tryLocationToPixel(geoPosition).x;
-                },
-                getY: function () {
-                    return self._nativeMap.tryLocationToPixel(geoPosition).y;
-                },
-                isPrimary: true,
-                isSecondary: false,
-                isTouchEvent: false,
-                mouseMoved: false,
-                originalEvent: null,
-                pageX: 0,
-                pageY: 0,
-                target: self._nativeMap,
-                targetType: 'map',
-                wheelDelta: 0
-            });
+        self._triggerMouseClick = function (geoPosition) {
+            var pixel = self._nativeMap.tryLocationToPixel(geoPosition);
+            util.invokeClickEventOnMap(pixel);            
         };
     };
 

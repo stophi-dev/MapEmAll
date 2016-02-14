@@ -26,7 +26,12 @@ See https://raw.githubusercontent.com/stophi-dev/MapEmAll/master/LICENSE for det
                 <option selected>osm</option>
             </select>
             <button id="clearAllMarkers">Clear all markers</button>
-            <span id="showArea"></span>
+            <ul>
+                <li><span id="showNorthEast">NorthEast: Start position</span></li>
+                <li><span id="showSouthWest">SouthWest: Start position</span></li>
+                <li><span id="showClickedMarker">No marker was clicked</span></li>
+            </ul>
+
         </div>
         <div id="map"></div>
         <script src="lib/require.js" data-main="SystemTestMain"></script>

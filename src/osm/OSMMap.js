@@ -96,9 +96,9 @@ define(['osm/OSMConverter', 'osm/OSMMarker'], function (OSMConverter, OSMMarker)
             var marker = new OSMMarker(osmConverter, nativeMarkerLayer, geoPosition, title);
             markers.push(marker);
             return marker;
-        };                        
+        };
 
-        this.getMarkers = function() {
+        this.getMarkers = function () {
             return markers.slice();
         };
 
@@ -109,9 +109,9 @@ define(['osm/OSMConverter', 'osm/OSMMarker'], function (OSMConverter, OSMMarker)
             nativeMarkerLayer = new OpenLayers.Layer.Markers("Markers");
             self._nativeMap.addLayer(nativeMarkerLayer);
             markers = [];
-        };        
-        
-        this._triggerMouseClick = function(geoPosition) {
+        };
+
+        this._triggerMouseClick = function (geoPosition) {
             var lonLat = osmConverter.toOsmLonLat(geoPosition);
             var pixel = self._nativeMap.getPixelFromLonLat(lonLat);
             self._nativeMap.events.triggerEvent('click', {xy: pixel});

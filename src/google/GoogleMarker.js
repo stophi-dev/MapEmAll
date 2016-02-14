@@ -15,7 +15,7 @@ define(function () {
     function GoogleMarker(providerMap, geoPosition, title) {
         var self = this;
 
-        this._nativeMarker = new google.maps.Marker({
+        self._nativeMarker = new google.maps.Marker({
             position: {lat: geoPosition.latitude, lng: geoPosition.longitude},
             map: providerMap,
             title: title
@@ -39,6 +39,22 @@ define(function () {
 
         self.setTitle = function (title) {
             self._nativeMarker.setTitle(title);
+        };
+
+        self.addListener = function (eventName, listener) {
+            if (eventName === 'click') {
+                self._nativeMarker.addListener('click', function () {
+                    listener(self);
+                });
+            } else {
+                throw new Error('unknown event: ' + eventName);
+            }
+        };
+
+        self._triggerMouseClick = function () {
+            google.maps.event.trigger(self._nativeMarker, 'click', {
+                latLng: self._nativeMarker.position
+            });
         };
     }
 

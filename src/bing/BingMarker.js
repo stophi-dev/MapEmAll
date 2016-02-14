@@ -12,23 +12,23 @@
 define(['JSLoader'], function (loader) {
     'use strict';
 
-    var BingMarker = function (providerMap, geoPosition, title) {
+    var BingMarker = function (util, geoPosition, title) {
         var self = this;
         var pinId = 'bing_pushpin_' + loader.makeId(20);
 
         var location = toBingLocation(geoPosition);
-        self._providerMarker = new Microsoft.Maps.Pushpin(location, {id: pinId});
-        providerMap.entities.push(self._providerMarker);
+        self._nativeMarker = new Microsoft.Maps.Pushpin(location, {id: pinId});
+        util._nativeMap.entities.push(self._nativeMarker);
 
         addTooltipToPin(pinId, title);
 
 
         self.setGeoPosition = function (geoPosition) {
-            self._providerMarker.setLocation(toBingLocation(geoPosition));
+            self._nativeMarker.setLocation(toBingLocation(geoPosition));
         };
 
         self.getGeoPosition = function () {
-            return toGeoPosition(self._providerMarker.getLocation());
+            return toGeoPosition(self._nativeMarker.getLocation());
         };
 
         self.getTitle = function () {
@@ -38,20 +38,40 @@ define(['JSLoader'], function (loader) {
         self.setTitle = function (title) {
             addTooltipToPin(pinId, title);
         };
+
+        self.addListener = function (eventName, listener) {
+            if (eventName === 'click') {
+                Microsoft.Maps.Events.addHandler(self._nativeMarker, 'click', function () {
+                    listener(self);
+                });
+            } else {
+                throw new Error('unknown event: ' + eventName);
+            }
+        };
+
+        self._triggerMouseClick = function () {
+            util.invokeClickEventOnPushpin(self._nativeMarker, getMarkerPixel());
+        };
+
+        function getMarkerPixel() {
+            return util._nativeMap.tryLocationToPixel(self._nativeMarker.getLocation());
+        }
     };
+
 
     function addTooltipToPin(pinId, tooltipText) {
         var pinElement = document.getElementById(pinId);
         var children = Array.prototype.slice.call(pinElement.childNodes);
         children.forEach(function (child) {
             child.setAttribute('title', tooltipText);
+            child.style.cursor = 'pointer';
         });
     }
 
     function getTooltipFromPin(pinId) {
         var pinElement = document.getElementById(pinId);
         var children = Array.prototype.slice.call(pinElement.childNodes);
-        for (var i=0; i < children.length; i++) {
+        for (var i = 0; i < children.length; i++) {
             var title = children[i].getAttribute('title');
             if (title) {
                 return title;

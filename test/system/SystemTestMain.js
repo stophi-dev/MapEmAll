@@ -39,19 +39,19 @@ define(function () {
                 map = loadedMap;
                 var clickCount = 0;
                 map.addListener('boundsChanged', function () {
-                    $('#showArea').text(areaToString(map.getArea()));
+                    var area  = map.getArea();
+                    $('#showNorthEast').text('Northeast: ' + geoLocationToString(area.northEast));
+                    $('#showSouthWest').text(' Southwest: ' + geoLocationToString(area.southWest));
                 });
 
                 map.addListener('click', function (geoPosition) {
                     clickCount += 1;
-                    map.addMarker(geoPosition, 'Marker ' + clickCount);
+                    var marker = map.addMarker(geoPosition, 'Marker ' + clickCount);
+                    marker.addListener('click', function(clickedMarker) {
+                        $('#showClickedMarker').text("Marker clicked: " + clickedMarker.getTitle());
+                    });
                 });
             });
-        }
-
-        function areaToString(area) {
-            return 'Northeast: ' + geoLocationToString(area.northEast) +
-                    ' Southwest: ' + geoLocationToString(area.southWest);
         }
 
         function geoLocationToString(geoLocation) {

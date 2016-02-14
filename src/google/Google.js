@@ -9,7 +9,7 @@
 
 /* global google */
 
-define(['JSLoader', 'google/GoogleMap'], function (loader, GoogleMap) {
+define(['JSLoader', './GoogleMap'], function (loader, GoogleMap) {
     'use strict';
 
     return {
