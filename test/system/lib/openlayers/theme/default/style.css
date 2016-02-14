@@ -11,8 +11,8 @@ div.olMapViewport {
 }
 
 div.olLayerDiv {
-   -moz-user-select: none;
-   -khtml-user-select: none;
+    -moz-user-select: none;
+    -khtml-user-select: none;
 }
 
 .olLayerGoogleCopyright {
@@ -48,22 +48,22 @@ div.olLayerDiv {
     font-size: smaller;
 }
 .olControlScaleLine {
-   display: block;
-   position: absolute;
-   left: 10px;
-   bottom: 15px;
-   font-size: xx-small;
+    display: block;
+    position: absolute;
+    left: 10px;
+    bottom: 15px;
+    font-size: xx-small;
 }
 .olControlScaleLineBottom {
-   border: solid 2px black;
-   border-bottom: none;
-   margin-top:-2px;
-   text-align: center;
+    border: solid 2px black;
+    border-bottom: none;
+    margin-top:-2px;
+    text-align: center;
 }
 .olControlScaleLineTop {
-   border: solid 2px black;
-   border-top: none;
-   text-align: center;
+    border: solid 2px black;
+    border-top: none;
+    text-align: center;
 }
 
 .olControlPermalink {
@@ -141,23 +141,23 @@ div.olControlMousePosition {
 }
 
 .olControlNavigationHistory {
-   background-image: url("img/navigation_history.png");
-   background-repeat: no-repeat;
-   width:  24px;
-   height: 24px;
+    background-image: url("img/navigation_history.png");
+    background-repeat: no-repeat;
+    width:  24px;
+    height: 24px;
 
 }
 .olControlNavigationHistoryPreviousItemActive {
-  background-position: 0 0;
+    background-position: 0 0;
 }
 .olControlNavigationHistoryPreviousItemInactive {
-   background-position: 0 -24px;
+    background-position: 0 -24px;
 }
 .olControlNavigationHistoryNextItemActive {
-   background-position: -24px 0;
+    background-position: -24px 0;
 }
 .olControlNavigationHistoryNextItemInactive {
-   background-position: -24px -24px;
+    background-position: -24px -24px;
 }
 
 div.olControlSaveFeaturesItemActive {
@@ -263,8 +263,8 @@ div.olControlSaveFeaturesItemInactive {
 }
 
 .olPopupCloseBox {
-  background: url("img/close.gif") no-repeat;
-  cursor: pointer;
+    background: url("img/close.gif") no-repeat;
+    cursor: pointer;
 }
 
 .olFramedCloudPopupContent {
@@ -273,8 +273,8 @@ div.olControlSaveFeaturesItemInactive {
 }
 
 .olControlNoSelect {
- -moz-user-select: none;
- -khtml-user-select: none;
+    -moz-user-select: none;
+    -khtml-user-select: none;
 }
 
 .olImageLoadError {

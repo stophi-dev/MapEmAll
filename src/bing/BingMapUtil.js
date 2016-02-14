@@ -1,8 +1,7 @@
-/* 
+/*
  * MapEmAll is licensed under the conditions of the MIT License (MIT)
  *
  * Copyright (c) 2015-2016 Philip Stöhrer
- * All rights reserved.
  *
  * See https://raw.githubusercontent.com/stophi-dev/MapEmAll/master/LICENSE for details.
  */
@@ -31,8 +30,8 @@ define(function () {
         self.invokeClickEventOnMap = function (pixel) {
             invokeClickEvent(self._nativeMap, 'map', pixel);
         };
-        
-        self.invokeClickEventOnPushpin = function(pushpin, pixel) {
+
+        self.invokeClickEventOnPushpin = function (pushpin, pixel) {
             invokeClickEvent(pushpin, 'pushpin', pixel);
         };
 

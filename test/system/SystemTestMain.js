@@ -2,7 +2,6 @@
  * MapEmAll is licensed under the conditions of the MIT License (MIT)
  *
  * Copyright (c) 2015-2016 Philip Stöhrer
- * All rights reserved.
  *
  * See https://raw.githubusercontent.com/stophi-dev/MapEmAll/master/LICENSE for details.
  */
@@ -16,10 +15,10 @@ define(function () {
     });
 
     require(['Main', 'jquery'], function (MapEmAll, $) {
-        MapEmAll.center = {"latitude":48.137013636218676,"longitude":11.576739173564974};
+        MapEmAll.center = {"latitude": 48.137013636218676, "longitude": 11.576739173564974};
         MapEmAll.zoomLevel = 15;
         MapEmAll.osm.url = 'lib/openlayers/OpenLayers.js';
-    
+
         var maps = {};
 
         $('.providerSelect').each(function () {
@@ -27,7 +26,7 @@ define(function () {
                 loadMap(this.value);
             }
         });
-        
+
         $('.providerSelect').on('change', function () {
             if (this.checked) {
                 loadMap(this.value);

@@ -2,7 +2,6 @@
  * MapEmAll is licensed under the conditions of the MIT License (MIT)
  *
  * Copyright (c) 2015-2016 Philip Stöhrer
- * All rights reserved.
  *
  * See https://raw.githubusercontent.com/stophi-dev/MapEmAll/master/LICENSE for details.
  */
@@ -21,7 +20,7 @@ define([], function () {
         provider: 'osm',
         htmlContainerId: 'MapEmAll',
         osm: {
-            url:'http://www.openlayers.org/api/OpenLayers.js'
+            url: 'http://www.openlayers.org/api/OpenLayers.js'
         },
         getMapProviders: function () {
             return Object.keys(providers);

@@ -1,8 +1,7 @@
-/* 
+/*
  * MapEmAll is licensed under the conditions of the MIT License (MIT)
  *
  * Copyright (c) 2015-2016 Philip Stöhrer
- * All rights reserved.
  *
  * See https://raw.githubusercontent.com/stophi-dev/MapEmAll/master/LICENSE for details.
  */
@@ -11,7 +10,7 @@
 
 define(function () {
     'use strict';
-    
+
     function OSMConverter(osmMap) {
         var self = this;
         self.osmMap = osmMap;
@@ -27,7 +26,7 @@ define(function () {
         self.toGeoPosition = function (osmLonLat) {
             // Need new lonlat so that original osmLonLat is not affected by transformation
             var lonLatClone = new OpenLayers.LonLat(osmLonLat.lon, osmLonLat.lat);
-            
+
             var position = lonLatClone.transform(
                     osmMap.getProjectionObject(),
                     osmMap.displayProjection);
@@ -37,7 +36,8 @@ define(function () {
             };
 
         };
-    };
+    }
+    ;
 
     return OSMConverter;
 });

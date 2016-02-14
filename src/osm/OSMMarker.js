@@ -1,8 +1,7 @@
-/* 
+/*
  * MapEmAll is licensed under the conditions of the MIT License (MIT)
  *
  * Copyright (c) 2015-2016 Philip Stöhrer
- * All rights reserved.
  *
  * See https://raw.githubusercontent.com/stophi-dev/MapEmAll/master/LICENSE for details.
  */
@@ -64,7 +63,7 @@ define(function () {
             }
         };
 
-        self._triggerMouseClick = function () {            
+        self._triggerMouseClick = function () {
             var pixel = osmConverter.osmMap.getPixelFromLonLat(self._nativeMarker.lonlat);
             self._nativeMarker.events.triggerEvent('click', {xy: pixel});
         };

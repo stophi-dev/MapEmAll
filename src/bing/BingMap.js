@@ -2,7 +2,6 @@
  * MapEmAll is licensed under the conditions of the MIT License (MIT)
  *
  * Copyright (c) 2015-2016 Philip Stöhrer
- * All rights reserved.
  *
  * See https://raw.githubusercontent.com/stophi-dev/MapEmAll/master/LICENSE for details.
  */
@@ -23,9 +22,9 @@ define(['./BingMarker', './BingMapUtil'], function (BingMarker, BingMapUtil) {
         };
 
         self._nativeMap = new Microsoft.Maps.Map(options.htmlContainer, mapOptions);
-        
+
         var util = new BingMapUtil(self._nativeMap);
-        
+
         self.getArea = function () {
             var bounds = self._nativeMap.getBounds();
             return {
@@ -49,7 +48,7 @@ define(['./BingMarker', './BingMapUtil'], function (BingMarker, BingMapUtil) {
 
             } else if (event === 'click') {
                 var wrappedListener = function (event) {
-                    if (event.targetType === "map") {                        
+                    if (event.targetType === "map") {
                         listener(util.pixelToGeoPosition(event.getX(), event.getY()));
                     }
                 };
@@ -59,7 +58,7 @@ define(['./BingMarker', './BingMapUtil'], function (BingMarker, BingMapUtil) {
             }
         };
 
-        self.getMarkers = function() {
+        self.getMarkers = function () {
             return markers.slice();
         };
 
@@ -76,7 +75,7 @@ define(['./BingMarker', './BingMapUtil'], function (BingMarker, BingMapUtil) {
 
         self._triggerMouseClick = function (geoPosition) {
             var pixel = self._nativeMap.tryLocationToPixel(geoPosition);
-            util.invokeClickEventOnMap(pixel);            
+            util.invokeClickEventOnMap(pixel);
         };
     };
 
