@@ -30,7 +30,7 @@ define(['JSLoader', 'bing/BingMap'], function (loader, BingMap) {
                 delete window[callbackName];
                 callback(new BingMap(options));
             };
-            loader.loadjsfile('http://dev.virtualearth.net/mapcontrol/mapcontrol.ashx?v=7.0&onscriptload=' + callbackName);
+            loader.loadjsfile('https://ecn.dev.virtualearth.net/mapcontrol/mapcontrol.ashx?v=7.0&s=1&onscriptload=' + callbackName);
         }
     };
 });
