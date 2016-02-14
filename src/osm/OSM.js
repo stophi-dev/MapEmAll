@@ -12,7 +12,7 @@ define(['JSLoader', 'osm/OSMMap'], function (loader, OSMMap) {
 
     return {
         loadMap: function (options, callback) {
-            loader.loadjsfile('http://www.openlayers.org/api/OpenLayers.js', function () {
+            loader.loadjsfile(options.osm.url, function () {
                 callback(new OSMMap(options));
             });
         }

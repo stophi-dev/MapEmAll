@@ -18,6 +18,7 @@ define(function () {
     require(['Main', 'jquery'], function (MapEmAll, $) {
         MapEmAll.center = {"latitude":48.137013636218676,"longitude":11.576739173564974};
         MapEmAll.zoomLevel = 15;
+        MapEmAll.osm.url = 'lib/openlayers/OpenLayers.js';
     
         var maps = {};
 

@@ -20,6 +20,9 @@ define([], function () {
         zoomLevel: 5,
         provider: 'osm',
         htmlContainerId: 'MapEmAll',
+        osm: {
+            url:'http://www.openlayers.org/api/OpenLayers.js'
+        },
         getMapProviders: function () {
             return Object.keys(providers);
         }
@@ -38,7 +41,10 @@ define([], function () {
             center: result.center,
             zoomLevel: result.zoomLevel,
             credentials: result.credentials,
-            htmlContainer: htmlContainer
+            htmlContainer: htmlContainer,
+            osm: {
+                url: result.osm.url
+            }
         };
         require([providers[result.provider]], function (mapProvider) {
             mapProvider.loadMap.apply(mapProvider, [options, onMapReadyCallback]);
