@@ -38,19 +38,19 @@ define(['./GoogleMarker'], function (GoogleMarker) {
         this.addListener = function (event, listener) {
             if (event === 'boundsChanged') {
                 var timeout;
-                var wrappedListener = function () {
+                var boundChangedListener = function () {
                     // - debounces google maps event
                     // - hides potential arguments from google API from this API
                     clearTimeout(timeout);
                     timeout = setTimeout(listener, 100);
                 };
-                self._nativeMap.addListener('bounds_changed', wrappedListener);
+                self._nativeMap.addListener('bounds_changed', boundChangedListener);
             } else if (event === 'click') {
-                var wrappedListener = function (location) {
+                var clickListener = function (location) {
                     listener({latitude: location.latLng.lat(),
                         longitude: location.latLng.lng()});
                 };
-                self._nativeMap.addListener('click', wrappedListener);
+                self._nativeMap.addListener('click', clickListener);
             } else {
                 throw 'unknown event: ' + event;
             }

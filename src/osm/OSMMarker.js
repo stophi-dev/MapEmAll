@@ -11,9 +11,8 @@
 define(function () {
     'use strict';
 
-    function OSMMarker(osmConverter, nativeMarkerLayer, geoPosition, initialTitle) {
+    function OSMMarker(osmConverter, nativeMarkerLayer, geoPosition) {
         var self = this;
-        var markerTitle = initialTitle;
 
         self._nativeMarker = new OpenLayers.Marker(osmConverter.toOsmLonLat(geoPosition));
         nativeMarkerLayer.addMarker(self._nativeMarker);
@@ -67,8 +66,6 @@ define(function () {
             var pixel = osmConverter.osmMap.getPixelFromLonLat(self._nativeMarker.lonlat);
             self._nativeMarker.events.triggerEvent('click', {xy: pixel});
         };
-
-        self.setTitle(initialTitle);
     }
 
     return OSMMarker;

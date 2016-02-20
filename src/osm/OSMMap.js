@@ -49,7 +49,7 @@ define(['osm/OSMConverter', 'osm/OSMMarker'], function (OSMConverter, OSMMarker)
                         'stopSingle': false,
                         'stopDouble': false
                     },
-                    initialize: function (options) {
+                    initialize: function () {
                         this.handlerOptions = OpenLayers.Util.extend(
                                 {}, this.defaultHandlerOptions
                                 );
@@ -92,7 +92,8 @@ define(['osm/OSMConverter', 'osm/OSMMarker'], function (OSMConverter, OSMMarker)
         // TODO remove listener function
 
         this.addMarker = function (geoPosition, title) {
-            var marker = new OSMMarker(osmConverter, nativeMarkerLayer, geoPosition, title);
+            var marker = new OSMMarker(osmConverter, nativeMarkerLayer, geoPosition);
+            marker.setTitle(title);
             markers.push(marker);
             return marker;
         };

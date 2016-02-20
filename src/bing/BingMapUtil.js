@@ -9,6 +9,7 @@
 /* global Microsoft */
 
 define(function () {
+    'use strict';
 
     var BingMapUtil = function (nativeBingMap) {
         var self = this;
@@ -65,7 +66,6 @@ define(function () {
                 wheelDelta: 0
             });
         }
-        ;
     };
 
     return BingMapUtil;

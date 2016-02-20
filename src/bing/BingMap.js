@@ -41,18 +41,18 @@ define(['./BingMarker', './BingMapUtil'], function (BingMarker, BingMapUtil) {
 
         this.addListener = function (event, listener) {
             if (event === 'boundsChanged') {
-                var wrappedListener = function () {
+                var boundChangedListener = function () {
                     listener();
                 };
-                Microsoft.Maps.Events.addHandler(self._nativeMap, 'viewchangeend', wrappedListener);
+                Microsoft.Maps.Events.addHandler(self._nativeMap, 'viewchangeend', boundChangedListener);
 
             } else if (event === 'click') {
-                var wrappedListener = function (event) {
+                var clickListener = function (event) {
                     if (event.targetType === "map") {
                         listener(util.pixelToGeoPosition(event.getX(), event.getY()));
                     }
                 };
-                Microsoft.Maps.Events.addHandler(self._nativeMap, 'click', wrappedListener);
+                Microsoft.Maps.Events.addHandler(self._nativeMap, 'click', clickListener);
             } else {
                 throw 'unknown event: ' + event;
             }
